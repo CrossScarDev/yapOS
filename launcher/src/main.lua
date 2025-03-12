@@ -17,7 +17,7 @@ local selectedGame = 1
 local font = gfx.font.new("fonts/roobert11")
 gfx.setFont(font)
 
-function playdate.update()
+local function render()
 	gfx.clear()
 
 	local y = 20
@@ -42,15 +42,21 @@ end
 function playdate.downButtonDown()
 	if selectedGame < #games then
 		selectedGame += 1
+		render()
 	end
 end
 
 function playdate.upButtonDown()
 	if selectedGame > 1 then
 		selectedGame -= 1
+		render()
 	end
 end
 
 function playdate.AButtonDown()
 	playdate.system.switchToGame(games[selectedGame]["path"])
 end
+
+render()
+
+function playdate.update() end
