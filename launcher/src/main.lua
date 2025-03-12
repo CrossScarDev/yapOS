@@ -25,11 +25,17 @@ function playdate.update()
 		gfx.setImageDrawMode(playdate.graphics.kDrawModeFillBlack)
 		if i == selectedGame then
 			gfx.setColor(playdate.graphics.kColorBlack)
-			gfx.fillRoundRect(10, y - 5, font:getTextWidth(game["title"]) + 20, font:getHeight() + 10, 5)
+			gfx.fillRoundRect(
+				10,
+				y - 10,
+				font:getTextWidth(game["title"]) + 30,
+				font:getHeight() + 20,
+				(font:getHeight() + 20) / 2
+			)
 			gfx.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
 		end
-		gfx.drawText(game["title"], 20, y)
-		y += font:getHeight() + 20
+		gfx.drawText(game["title"], 25, y)
+		y += font:getHeight() + 22.5
 	end
 end
 
