@@ -1,0 +1,5 @@
+name=YapOS
+author=CrossScar
+description=Yet Another Playdate Operating System
+bundleID=com.panic.launcher
+version=0.0.0
