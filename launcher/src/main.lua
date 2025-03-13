@@ -62,6 +62,14 @@ function playdate.update()
 	gfx.clear()
 	playdate.timer.updateTimers()
 	listview:drawInRect(0, 0, playdate.display.getWidth(), playdate.display.getHeight())
+
+	local selectedGame = games[listview:getSelectedRow()]
+	if selectedGame.path and selectedGame.imagepath then
+		if playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi") then
+			local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+			icon:drawScaled(playdate.display.getWidth() / 2 + 10, 5, 2)
+		end
+	end
 end
 
 function playdate.downButtonDown()
