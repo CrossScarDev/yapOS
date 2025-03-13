@@ -6,11 +6,27 @@ import("CoreLibs/ui")
 
 local gfx <const> = playdate.graphics
 local ui <const> = playdate.ui
+local sys <const> = playdate.system
 
 local games = {}
-for _, group in ipairs(playdate.datastore.read("/System/Data/games")) do
-	for _, game in ipairs(group["games"]) do
-		table.insert(games, game)
+
+for _, group in ipairs(sys.getInstalledGameList()) do
+	for _, game in ipairs(group) do
+		if sys.game.getPath(game) then
+			local path = sys.game.getPath(game)
+			if sys.game.getBundleID(game) then
+				local props = sys.getMetadata(path .. "/pdxinfo")
+				local newprops = {}
+				for k, v in pairs(props) do
+					newprops[string.lower(k)] = v
+				end
+				props = newprops
+				props["path"] = path
+				props["group"] = group.name
+				props["suppressContentWarning"] = game:getSuppressContentWarning()
+				table.insert(games, props)
+			end
+		end
 	end
 end
 
@@ -31,7 +47,7 @@ function listview:drawCell(section, row, column, selected, x, y, width, height)
 		gfx.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
 	end
 	gfx.drawTextInRect(
-		games[row]["title"],
+		games[row]["name"],
 		x,
 		y + height / 2 - font:getHeight() / 2,
 		width,
