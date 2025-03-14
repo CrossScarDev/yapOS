@@ -63,9 +63,9 @@ function listview:drawCell(section, row, column, selected, x, y, width, height)
 	end
 	gfx.drawTextInRect(
 		games[row].name,
-		x,
+		x + 10,
 		y + height / 2 - font:getHeight() / 2,
-		width,
+		width - 20,
 		height,
 		nil,
 		nil,
