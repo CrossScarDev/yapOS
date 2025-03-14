@@ -70,11 +70,16 @@ function playdate.update()
 			local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
 			icon:drawScaled(titleOffset, 5, 2)
 			titleOffset += 74
+			local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - titleOffset - 15)
+			gfx.drawTextInRect(
+				selectedGame.name,
+				titleOffset,
+				37 - h / 2,
+				playdate.display.getWidth() - titleOffset - 15,
+				64
+			)
 		end
 	end
-
-	local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - titleOffset - 15)
-	gfx.drawTextInRect(selectedGame.name, titleOffset, 37 - h / 2, playdate.display.getWidth() - titleOffset - 15, 64)
 end
 
 function playdate.downButtonDown()
