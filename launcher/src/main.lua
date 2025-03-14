@@ -64,21 +64,27 @@ function playdate.update()
 	listview:drawInRect(0, 0, playdate.display.getWidth(), playdate.display.getHeight())
 
 	local selectedGame = games[listview:getSelectedRow()]
-	local titleOffset = playdate.display.getWidth() / 2 + 10
+	local infoOffset = 5
+	local sideOffset = playdate.display.getWidth() / 2 + 10
 	if selectedGame.path and selectedGame.imagepath then
 		if playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi") then
 			local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
-			icon:drawScaled(titleOffset, 5, 2)
-			titleOffset += 74
-			local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - titleOffset - 15)
+			icon:drawScaled(sideOffset, 5, 2)
+			local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - sideOffset + 59)
 			gfx.drawTextInRect(
 				selectedGame.name,
-				titleOffset,
+				sideOffset + 74,
 				37 - h / 2,
-				playdate.display.getWidth() - titleOffset - 15,
+				playdate.display.getWidth() - sideOffset + 59,
 				64
 			)
+
+			infoOffset += 69
 		end
+	end
+
+	if selectedGame.version then
+		gfx.drawText("Version: " .. selectedGame.version, sideOffset, infoOffset)
 	end
 end
 
