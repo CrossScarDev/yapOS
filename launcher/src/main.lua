@@ -7,6 +7,7 @@ import("CoreLibs/ui")
 local gfx <const> = playdate.graphics
 local ui <const> = playdate.ui
 local sys <const> = playdate.system
+local menu <const> = playdate.getSystemMenu()
 
 local games = {}
 
@@ -35,6 +36,12 @@ local fontBold = gfx.font.new("fonts/roobert11Bold")
 gfx.setFont(font)
 gfx.setFont(fontBold, gfx.font.kVariantBold)
 
+local darkMode = false
+
+menu:addCheckmarkMenuItem("Dark Mode", darkMode, function(v)
+	darkMode = v
+end)
+
 local listview = ui.gridview.new(playdate.display.getWidth() / 2, font:getHeight() + 20)
 listview:setNumberOfRows(#games)
 listview:setNumberOfColumns(1)
@@ -42,11 +49,11 @@ listview:setCellPadding(0, 0, 2.5, 2.5)
 listview:setContentInset(5, 0, 5, 0)
 listview:setSelectedRow(1)
 function listview:drawCell(section, row, column, selected, x, y, width, height)
-	gfx.setImageDrawMode(playdate.graphics.kDrawModeFillBlack)
+	gfx.setImageDrawMode(darkMode and gfx.kDrawModeFillWhite or gfx.kDrawModeFillBlack)
 	if selected then
-		gfx.setColor(gfx.kColorBlack)
+		gfx.setColor(darkMode and gfx.kColorWhite or gfx.kColorBlack)
 		gfx.fillRoundRect(x, y, width, height, height / 2)
-		gfx.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
+		gfx.setImageDrawMode(darkMode and gfx.kDrawModeFillBlack or gfx.kDrawModeFillWhite)
 	end
 	gfx.drawTextInRect(
 		games[row].name,
@@ -61,7 +68,7 @@ function listview:drawCell(section, row, column, selected, x, y, width, height)
 end
 
 function playdate.update()
-	gfx.clear()
+	gfx.clear(darkMode and gfx.kColorBlack or gfx.kColorWhite)
 	playdate.timer.updateTimers()
 	listview:drawInRect(0, 0, playdate.display.getWidth(), playdate.display.getHeight())
 
@@ -73,8 +80,13 @@ function playdate.update()
 		and selectedGame.imagepath
 		and playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
 	then
+		gfx.setImageDrawMode(gfx.kDrawModeCopy)
 		local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+		gfx.setColor(gfx.kColorWhite)
+		gfx.fillRect(sideOffset, 5, 64, 64)
 		icon:drawScaled(sideOffset, 5, 2)
+
+		gfx.setImageDrawMode(darkMode and gfx.kDrawModeFillWhite or gfx.kDrawModeFillBlack)
 		local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - sideOffset + 59)
 		gfx.drawTextInRect(
 			selectedGame.name,
@@ -87,6 +99,7 @@ function playdate.update()
 		infoOffset += 69
 	else
 		infoOffset += 5
+		gfx.setImageDrawMode(darkMode and gfx.kDrawModeFillWhite or gfx.kDrawModeFillBlack)
 	end
 
 	gfx.drawTextInRect(
