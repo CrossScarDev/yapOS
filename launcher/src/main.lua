@@ -47,7 +47,7 @@ function listview:drawCell(section, row, column, selected, x, y, width, height)
 		gfx.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
 	end
 	gfx.drawTextInRect(
-		games[row]["name"],
+		games[row].name,
 		x,
 		y + height / 2 - font:getHeight() / 2,
 		width,
@@ -64,12 +64,17 @@ function playdate.update()
 	listview:drawInRect(0, 0, playdate.display.getWidth(), playdate.display.getHeight())
 
 	local selectedGame = games[listview:getSelectedRow()]
+	local titleOffset = playdate.display.getWidth() / 2 + 10
 	if selectedGame.path and selectedGame.imagepath then
 		if playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi") then
 			local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
-			icon:drawScaled(playdate.display.getWidth() / 2 + 10, 5, 2)
+			icon:drawScaled(titleOffset, 5, 2)
+			titleOffset += 74
 		end
 	end
+
+	local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - titleOffset - 15)
+	gfx.drawTextInRect(selectedGame.name, titleOffset, 37 - h / 2, playdate.display.getWidth() - titleOffset - 15, 64)
 end
 
 function playdate.downButtonDown()
@@ -87,5 +92,5 @@ function playdate.upButtonDown()
 end
 
 function playdate.AButtonDown()
-	playdate.system.switchToGame(games[listview:getSelectedRow()]["path"])
+	sys.switchToGame(games[listview:getSelectedRow()]["path"])
 end
