@@ -1,22 +1,36 @@
 {
-  "telemetry.enable": false,
-  "runtime.version": "Lua 5.4",
-  "runtime.special": {
-    "import": "require"
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+  "diagnostics.globals": [
+    "import"
+  ],
+  "diagnostics.severity": {
+    "duplicate-set-field": "Hint"
+  },
+  "format.defaultConfig": {
+    "indent_style": "space",
+    "indent_size": "4"
+  },
+  "runtime.builtin": {
+    "io": "disable",
+    "os": "disable",
+    "package": "disable"
   },
   "runtime.nonstandardSymbol": [
     "+=",
     "-=",
     "*=",
-    "/="
+    "/=",
+    "//=",
+    "%=",
+    "<<=",
+    ">>=",
+    "&=",
+    "|=",
+    "^="
   ],
-  "diagnostics.globals": [
-    "playdate",
-    "json"
-  ],
-  "diagnostics.libraryFiles": "Disable",
-  "completion.callSnippet": "Replace",
+  "runtime.version": "Lua 5.4",
   "workspace.library": [
-    "$PLAYDATE_SDK_PATH/CoreLibs"
+    "~/playdate-luacats",
+    "$PLAYDATE_SDK_PATH/"
   ]
 }
