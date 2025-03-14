@@ -31,7 +31,9 @@ for _, group in ipairs(sys.getInstalledGameList()) do
 end
 
 local font = gfx.font.new("fonts/roobert11")
+local fontBold = gfx.font.new("fonts/roobert11Bold")
 gfx.setFont(font)
+gfx.setFont(fontBold, gfx.font.kVariantBold)
 
 local listview = ui.gridview.new(playdate.display.getWidth() / 2, font:getHeight() + 20)
 listview:setNumberOfRows(#games)
@@ -66,25 +68,69 @@ function playdate.update()
 	local selectedGame = games[listview:getSelectedRow()]
 	local infoOffset = 5
 	local sideOffset = playdate.display.getWidth() / 2 + 10
-	if selectedGame.path and selectedGame.imagepath then
-		if playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi") then
-			local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
-			icon:drawScaled(sideOffset, 5, 2)
-			local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - sideOffset + 59)
-			gfx.drawTextInRect(
-				selectedGame.name,
-				sideOffset + 74,
-				37 - h / 2,
-				playdate.display.getWidth() - sideOffset + 59,
-				64
-			)
+	if
+		selectedGame.path
+		and selectedGame.imagepath
+		and playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+	then
+		local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+		icon:drawScaled(sideOffset, 5, 2)
+		local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - sideOffset + 59)
+		gfx.drawTextInRect(
+			selectedGame.name,
+			sideOffset + 74,
+			h < 64 and 37 - h / 2 or 5,
+			playdate.display.getWidth() - sideOffset + 59,
+			64
+		)
 
-			infoOffset += 69
-		end
+		infoOffset += 69
+	else
+		infoOffset += 5
 	end
 
+	gfx.drawTextInRect(
+		"*Author:* " .. selectedGame.author,
+		sideOffset,
+		infoOffset,
+		playdate.display.getWidth() - sideOffset - 5,
+		font:getHeight(),
+		nil,
+		"..."
+	)
+	infoOffset += font:getHeight() + 5
 	if selectedGame.version then
-		gfx.drawText("Version: " .. selectedGame.version, sideOffset, infoOffset)
+		gfx.drawTextInRect(
+			"*Version:* " .. selectedGame.version,
+			sideOffset,
+			infoOffset,
+			playdate.display.getWidth() - sideOffset - 5,
+			font:getHeight(),
+			nil,
+			"..."
+		)
+		infoOffset += font:getHeight() + 5
+	end
+	gfx.drawTextInRect(
+		"*Group:* " .. selectedGame.group,
+		sideOffset,
+		infoOffset,
+		playdate.display.getWidth() - sideOffset - 5,
+		font:getHeight(),
+		nil,
+		"..."
+	)
+	infoOffset += font:getHeight() + 5
+	if selectedGame.description then
+		gfx.drawTextInRect(
+			"*Descripton:*\n" .. selectedGame.description,
+			sideOffset,
+			infoOffset,
+			playdate.display.getWidth() - sideOffset - 5,
+			playdate.display.getHeight() - infoOffset - 5,
+			nil,
+			"..."
+		)
 	end
 end
 
