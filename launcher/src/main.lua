@@ -36,10 +36,16 @@ local fontBold = gfx.font.new("fonts/roobert11Bold")
 gfx.setFont(font)
 gfx.setFont(fontBold, gfx.font.kVariantBold)
 
+local settings = playdate.datastore.read("/System/Data/yapOS")
 local darkMode = false
+
+if settings ~= nil and settings.dark ~= nil then
+	darkMode = settings.dark
+end
 
 menu:addCheckmarkMenuItem("Dark Mode", darkMode, function(v)
 	darkMode = v
+	playdate.datastore.write({ ["dark"] = darkMode }, "/System/Data/yapOS")
 end)
 
 local listview = ui.gridview.new(playdate.display.getWidth() / 2, font:getHeight() + 20)
