@@ -48,7 +48,7 @@ menu:addCheckmarkMenuItem("Dark Mode", darkMode, function(v)
 	playdate.datastore.write({ ["dark"] = darkMode }, "/System/Data/yapOS")
 end)
 
-local listview = ui.gridview.new(playdate.display.getWidth() / 2, font:getHeight() + 20)
+local listview = ui.gridview.new(playdate.display.getWidth() / 2 - 7.5, font:getHeight() + 20)
 listview:setNumberOfRows(#games)
 listview:setNumberOfColumns(1)
 listview:setCellPadding(0, 0, 2.5, 2.5)
@@ -80,7 +80,7 @@ function playdate.update()
 
 	local selectedGame = games[listview:getSelectedRow()]
 	local infoOffset = 5
-	local sideOffset = playdate.display.getWidth() / 2 + 10
+	local sideOffset = playdate.display.getWidth() / 2 + 2.5
 	if
 		selectedGame.path
 		and selectedGame.imagepath
