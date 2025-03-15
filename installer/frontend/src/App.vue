@@ -46,6 +46,10 @@ input {
   }
 }
 
+input:focus {
+  background: #45475a;
+}
+
 .controls {
   display: flex;
   width: 100vw;
@@ -54,5 +58,11 @@ input {
   padding: 0.75rem;
   justify-content: right;
   gap: 0.75rem;
+}
+
+.error {
+  color: #f38ba8;
+  font-weight: bold;
+  font-size: 1.15rem;
 }
 </style>
