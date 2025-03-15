@@ -2,17 +2,19 @@
 import { step } from '../steps';
 import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
 import { ref, watch } from 'vue';
-import { GetPin } from '../../wailsjs/go/main/App'
+import { GetPin, FinishRegistration } from '../../wailsjs/go/main/App'
 
 const error = ref('');
 
 const serialNumber = ref('PDU1-Y');
 const pin = ref('');
 
-watch(step, async (_newStep, oldStep) => {
+let accessToken: string;
+
+watch(step, async (newStep, oldStep) => {
   error.value = '';
 
-  if (oldStep === 2) {
+  if (oldStep === 2 && newStep === 3) {
     if (!/^PDU1-Y\d{6}$/g.test(serialNumber.value)) {
       step.value--;
       return;
@@ -24,6 +26,18 @@ watch(step, async (_newStep, oldStep) => {
       return;
     }
     pin.value = pinInfo.pin;
+    return;
+  }
+  if (oldStep === 3 && newStep === 4) {
+    const info = await FinishRegistration(serialNumber.value);
+    if (info["access_token"] === undefined) {
+      step.value--;
+      if (info.detail !== undefined) error.value = info.detail;
+      if (info.registered !== undefined && !info.registered) error.value = "The pin was not entered."
+      return;
+    }
+    accessToken = info["access_token"];
+    console.log(accessToken);
   }
 });
 </script>
@@ -45,5 +59,9 @@ watch(step, async (_newStep, oldStep) => {
   <template v-else-if="step === 3">
     <p>Please go to https://play.date/pin and enter the following pin: <b>{{ pin }}</b></p>
     <button @click="BrowserOpenURL('https://play.date/pin/')">Open in Browser</button>
+  </template>
+  <template v-else-if="step === 4">
+    <p>Downloading PlaydateOS...</p>
+    <div class="loader" />
   </template>
 </template>

@@ -65,4 +65,24 @@ input:focus {
   font-weight: bold;
   font-size: 1.15rem;
 }
+
+.loader {
+  width: 2.5rem;
+  padding: 0.25rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #cdd6f4;
+  --mask: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--mask);
+  mask: var(--mask);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+  animation: loading 1s infinite linear;
+}
+
+@keyframes loading {
+  to {
+    transform: rotate(1turn)
+  }
+}
 </style>

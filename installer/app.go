@@ -51,3 +51,24 @@ func (a *App) GetPin(serialNumber string) (map[string]any, error) {
 
 	return res, nil
 }
+
+var accessToken string = ""
+
+func (a *App) FinishRegistration(serialNumber string) (map[string]any, error) {
+	resp, err := http.Get("https://play.date/api/v2/device/register/" + serialNumber + "/complete/get")
+	if err != nil {
+		return nil, errors.New("Failed to fetch: " + "https://play.date/api/v2/device/register/" + serialNumber + "/complete/get")
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("Failed to read body of: " + "https://play.date/api/v2/device/register/" + serialNumber + "/complete/get")
+	}
+	var res map[string]any
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		return nil, errors.New("Failed to parse json response of: " + "https://play.date/api/v2/device/register/" + serialNumber + "/complete/get")
+	}
+
+	return res, nil
+}
