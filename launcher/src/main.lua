@@ -82,12 +82,21 @@ function playdate.update()
 	local infoOffset = 5
 	local sideOffset = playdate.display.getWidth() / 2 + 2.5
 	if
-		selectedGame.path
-		and selectedGame.imagepath
-		and playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+		(
+			selectedGame.path
+			and selectedGame.imagepath
+			and playdate.file.exists(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+		)
+		or (
+			string.match(selectedGame.group, "^Season%-%d%d%d$")
+			and playdate.file.exists("s1_icons/" .. selectedGame.bundleid .. ".pdi")
+		)
 	then
 		gfx.setImageDrawMode(gfx.kDrawModeCopy)
-		local icon = gfx.image.new(selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+		local icon = gfx.image.new(
+			string.match(selectedGame.group, "^Season%-%d%d%d$") and ("s1_icons/" .. selectedGame.bundleid .. ".pdi")
+				or (selectedGame.path .. "/" .. selectedGame.imagepath .. "/icon.pdi")
+		)
 		gfx.setColor(gfx.kColorWhite)
 		gfx.fillRect(sideOffset, 5, 64, 64)
 		icon:drawScaled(sideOffset, 5, 2)
