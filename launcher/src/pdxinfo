@@ -2,4 +2,5 @@ name=yapOS
 author=CrossScar
 description=Yet Another Playdate Operating System
 bundleID=com.panic.launcher
-version=0.0.3
+version=0.1.0
+imagepath=images
