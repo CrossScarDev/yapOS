@@ -48,6 +48,7 @@ watch(step, async (newStep, oldStep) => {
 });
 </script>
 <template>
+  <span class="error" v-if="error != ''">Error: {{ error }}</span>
   <template v-if="step === 1">
     <p>
       Please go to https://play.date/devices/, select your Playdate, and remove it from your account. Press next when
@@ -56,7 +57,6 @@ watch(step, async (newStep, oldStep) => {
     <button @click="BrowserOpenURL('https://play.date/devices/')">Open in Browser</button>
   </template>
   <template v-else-if="step === 2">
-    <span class="error" v-if="error != ''">Error: {{ error }}</span>
     <p>
       Please input your Playdate's serial number.
     </p>
