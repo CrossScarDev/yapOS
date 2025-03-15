@@ -2,7 +2,7 @@
 import { step } from '../steps';
 import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
 import { ref, watch } from 'vue';
-import { GetPin, FinishRegistration } from '../../wailsjs/go/main/App'
+import { GetPin, FinishRegistration, DownloadOS } from '../../wailsjs/go/main/App'
 
 const error = ref('');
 
@@ -37,7 +37,8 @@ watch(step, async (newStep, oldStep) => {
       return;
     }
     accessToken = info["access_token"];
-    console.log(accessToken);
+
+    await DownloadOS(accessToken);
   }
 });
 </script>
