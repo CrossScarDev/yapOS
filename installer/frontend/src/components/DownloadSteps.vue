@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { step } from '../steps';
+import { canContinue, step } from '../global';
 import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
 import { ref, watch } from 'vue';
 import { GetPin, FinishRegistration, DownloadOS } from '../../wailsjs/go/main/App'
@@ -10,6 +10,8 @@ const serialNumber = ref('PDU1-Y');
 const pin = ref('');
 
 let accessToken: string;
+
+const downloaded = ref(false);
 
 watch(step, async (newStep, oldStep) => {
   error.value = '';
@@ -38,7 +40,10 @@ watch(step, async (newStep, oldStep) => {
     }
     accessToken = info["access_token"];
 
+    canContinue.value = false;
     await DownloadOS(accessToken);
+    canContinue.value = true;
+    downloaded.value = true;
   }
 });
 </script>
@@ -59,10 +64,15 @@ watch(step, async (newStep, oldStep) => {
   </template>
   <template v-else-if="step === 3">
     <p>Please go to https://play.date/pin and enter the following pin: <b>{{ pin }}</b></p>
-    <button @click="BrowserOpenURL('https://play.date/pin/')">Open in Browser</button>
+    <button @click="BrowserOpenURL('https://play.date/pin/' + pin)">Open in Browser</button>
   </template>
   <template v-else-if="step === 4">
-    <p>Downloading PlaydateOS...</p>
-    <div class="loader" />
+    <template v-if="downloaded">
+      <p>Successfully download PlaydateOS!</p>
+    </template>
+    <template v-else>
+      <p>Downloading PlaydateOS...</p>
+      <div class="loader" />
+    </template>
   </template>
 </template>

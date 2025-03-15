@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { step, downloadSteps, installSteps } from './steps';
+import { step, downloadSteps, installSteps, canContinue } from './global';
 import DownloadSteps from './components/DownloadSteps.vue';
 </script>
 <template>
   <DownloadSteps />
-  <div class="controls">
+  <div class="controls" v-if="canContinue">
     <button @click="step--">Back</button>
     <button @click="step++">Next</button>
   </div>
