@@ -102,12 +102,12 @@ function playdate.update()
 		icon:drawScaled(sideOffset, 5, 2)
 
 		gfx.setImageDrawMode(darkMode and gfx.kDrawModeFillWhite or gfx.kDrawModeFillBlack)
-		local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - sideOffset + 59)
+		local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - sideOffset - 79)
 		gfx.drawTextInRect(
 			selectedGame.name,
 			sideOffset + 74,
 			h < 64 and 37 - h / 2 or 5,
-			playdate.display.getWidth() - sideOffset + 59,
+			playdate.display.getWidth() - sideOffset - 79,
 			64
 		)
 
