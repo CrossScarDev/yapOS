@@ -28,3 +28,5 @@ rm -r CoreLibs
 cp -r . ../../../src
 cd ../../..
 rm -r PlaydateOS
+
+cp -r src/ original/
