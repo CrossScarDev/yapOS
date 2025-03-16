@@ -2,4 +2,4 @@
 
 ## Yet Another Playful Operating System
 
-yapOS is an extremely simple operating system for the Playdate.
+yapOS is just another alternative operating system for the Playdate.
