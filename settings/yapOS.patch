@@ -5,8 +5,8 @@ Binary files original/images/SystemUpdate/update-downloading.pdi and src/images/
 Binary files original/images/SystemUpdate/update-unpacking.pdi and src/images/SystemUpdate/update-unpacking.pdi differ
 diff -ruN original/pdxinfo src/pdxinfo
 --- original/pdxinfo	2025-03-16 11:33:05.976030514 -0700
-+++ src/pdxinfo	2025-03-16 13:14:45.262951980 -0700
-@@ -1,7 +1,6 @@
++++ src/pdxinfo	2025-03-16 13:16:21.626459519 -0700
+@@ -1,7 +1,7 @@
 -name=Settings
 -author=Panic Inc.
 -description=Settings
@@ -15,9 +15,9 @@ diff -ruN original/pdxinfo src/pdxinfo
 +description=Patched version of PlaydateOS Settings.
  bundleID=com.panic.settings
  imagePath=LauncherAssets/
--pdxversion=20601
++version=0.2.1
+ pdxversion=20601
 -buildtime=785877031
-+pdxversion=0.2.1
 diff -ruN original/settingsview.lua src/settingsview.lua
 --- original/settingsview.lua	2025-03-16 11:33:05.976430333 -0700
 +++ src/settingsview.lua	2025-03-16 11:41:26.269407075 -0700
