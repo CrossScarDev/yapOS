@@ -19,5 +19,4 @@ Things I'm planning to add.
 
 - [x] Make FunnyLoader optional
 - [x] Allow installing other operating systems (FunnyOS and Index OS)
-- [ ] Copy access token generated while downloading PlaydateOS onto device
 - [ ] Make it actually install

@@ -67,7 +67,6 @@ watch(step, async (newStep, oldStep) => {
       }
     }
 
-    // status.value = "Copying Access Token...";
     status.value = "Repackaging PlaydateOS...";
     status.value = "Uploading Patched PlaydateOS...";
     status.value = "Installing Patched PlaydateOS...";
