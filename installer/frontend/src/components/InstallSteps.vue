@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { step, downloadSteps, canContinue } from '../global';
 import { DownloadOS, ExtractPlaydateOS } from '../../wailsjs/go/main/App';
 
-const funnyLoader = ref(true);
+const funnyLoader = ref<boolean>();
 const yapos = ref(true);
 const indexos = ref(false);
 const funnyos = ref(false);
