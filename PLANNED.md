@@ -7,7 +7,7 @@ Things I'm planning to add.
 - [x] Only render when scrolling
 - [ ] Add option to animate icons
 - [ ] Add option to customize scrolling speed
-- [ ] Press `B` to see info in fullscreen
+- [ ] Press `B` or `Right` to see info in fullscreen
 
 ## Settings
 
