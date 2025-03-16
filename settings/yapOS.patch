@@ -1,0 +1,274 @@
+diff -ruN original/settingsview.lua src/settingsview.lua
+--- original/settingsview.lua	2025-03-16 11:29:10.242568991 -0700
++++ src/settingsview.lua	2025-03-16 11:25:53.754310187 -0700
+@@ -10,6 +10,7 @@
+ import("timezone/timeview")
+ import("system/systemview")
+ import("wifi/wifiview")
++import("yaposview")
+ import("utility")
+ SettingsView = {}
+ local menu, controller
+@@ -50,6 +51,10 @@
+ 	stopKeyRepeatTimer()
+ 	controller.pushView(LockscreenView, "Lock Screen", nil, kHeaderImageLockscreen)
+ end
++local yaposAction = function()
++	stopKeyRepeatTimer()
++	controller.pushView(YapOSView, "yapOS", nil, kHeaderImageDevice)
++end
+ local updateAutoLockRow
+ local autoLockAction = function()
+ 	stopKeyRepeatTimer()
+@@ -78,6 +83,7 @@
+ kMenuTitleNotificationLight = "Notification Light"
+ kMenuTitleAccessibility = "Accessibility"
+ kMenuTitleSystem = "System"
++kMenuTitleYapOS = "yapOS"
+ local chevronImage = chevronImage
+ local menuTitles = {
+ 	kMenuTitleGames,
+@@ -88,18 +94,20 @@
+ 	kMenuTitleNotificationLight,
+ 	kMenuTitleAccessibility,
+ 	kMenuTitleTime,
+-	kMenuTitleSystem
++	kMenuTitleSystem,
++	kMenuTitleYapOS,
+ }
+ local menuSubTitles = {
+-	{chevronImage},
+-	{chevronImage},
+-	{chevronImage},
+-	{chevronImage},
++	{ chevronImage },
++	{ chevronImage },
++	{ chevronImage },
++	{ chevronImage },
+ 	{},
+-	{chevronImage},
+-	{chevronImage},
++	{ chevronImage },
++	{ chevronImage },
+ 	{},
+-	{chevronImage}
++	{ chevronImage },
++	{ chevronImage },
+ }
+ local menuActions = {
+ 	gamesAction,
+@@ -110,7 +118,8 @@
+ 	notificationLightAction,
+ 	accessibilityAction,
+ 	timezoneAction,
+-	systemAction
++	systemAction,
++	yaposAction,
+ }
+ local kMenuRowGames = 1
+ local kMenuRowAccount = 2
+@@ -121,6 +130,7 @@
+ local kMenuRowAccessibility = 7
+ local kMenuRowTime = 8
+ local kMenuRowSystem = 9
++local kMenuRowYapOS = 10
+ function SettingsView:initWithController(c)
+ 	controller = c
+ 	menu = Menu.new()
+@@ -149,11 +159,11 @@
+ 		refreshDataOnce = true
+ 	end
+ 	if Registration.isRegistered() then
+-		menu:setSubtitleAtIndex(kMenuRowAccount, {"\226\128\166", chevronImage})
++		menu:setSubtitleAtIndex(kMenuRowAccount, { "\226\128\166", chevronImage })
+ 		Registration.getAccountInfo(function(info, error, cached)
+ 			if nil ~= info and nil ~= info.username then
+ 				local name = info.username
+-				menu:setSubtitleAtIndex(kMenuRowAccount, {name, chevronImage})
++				menu:setSubtitleAtIndex(kMenuRowAccount, { name, chevronImage })
+ 			elseif false == cached then
+ 				if Registration.isRegistered() then
+ 					local info = Registration.getCachedAccountInfo()
+@@ -161,11 +171,11 @@
+ 					if nil ~= info and nil ~= info.username then
+ 						name = info.username
+ 					end
+-					menu:setSubtitleAtIndex(kMenuRowAccount, {name, chevronImage})
++					menu:setSubtitleAtIndex(kMenuRowAccount, { name, chevronImage })
+ 				else
+ 					menu:setSubtitleAtIndex(kMenuRowAccount, {
+ 						"Not Registered",
+-						chevronImage
++						chevronImage,
+ 					})
+ 				end
+ 			end
+@@ -174,7 +184,7 @@
+ 	else
+ 		menu:setSubtitleAtIndex(kMenuRowAccount, {
+ 			"Not Registered",
+-			chevronImage
++			chevronImage,
+ 		})
+ 	end
+ end
+@@ -186,23 +196,23 @@
+ 	if #ssids > 0 then
+ 		menu:setSubtitleAtIndex(kMenuRowWifi, {
+ 			ssids[1],
+-			chevronImage
++			chevronImage,
+ 		})
+ 	else
+ 		menu:setSubtitleAtIndex(kMenuRowWifi, {
+ 			"Not Configured",
+-			chevronImage
++			chevronImage,
+ 		})
+ 	end
+ end
+ function SettingsView:viewWillAppear()
+ 	updateWifiStatus()
+ 	local style = LockscreenView.currentLockscreenStyle()
+-	menu:setSubtitleAtIndex(kMenuRowLockscreen, {style, chevronImage})
++	menu:setSubtitleAtIndex(kMenuRowLockscreen, { style, chevronImage })
+ 	local _, desc = playdate.system.getTimezoneOffset()
+ 	menu:setSubtitleAtIndex(kMenuRowTime, {
+ 		currentTimeString(),
+-		chevronImage
++		chevronImage,
+ 	})
+ 	updateAutoLockRow()
+ end
+@@ -226,7 +236,7 @@
+ 		currentMinutes = date.minute
+ 		menu:setSubtitleAtIndex(kMenuRowTime, {
+ 			currentTimeString(),
+-			chevronImage
++			chevronImage,
+ 		})
+ 	end
+ 	if menu:needsDisplay() or x ~= lastX then
+@@ -240,8 +250,7 @@
+ function SettingsView.AButtonUp()
+ 	menu:actionButtonUp()
+ end
+-function SettingsView.BButtonDown()
+-end
++function SettingsView.BButtonDown() end
+ function SettingsView.BButtonUp()
+ 	playdate.exit()
+ end
+@@ -263,14 +272,10 @@
+ function SettingsView.downButtonUp()
+ 	stopKeyRepeatTimer()
+ end
+-function SettingsView.leftButtonDown()
+-end
+-function SettingsView.leftButtonUp()
+-end
+-function SettingsView.rightButtonDown()
+-end
+-function SettingsView.rightButtonUp()
+-end
++function SettingsView.leftButtonDown() end
++function SettingsView.leftButtonUp() end
++function SettingsView.rightButtonDown() end
++function SettingsView.rightButtonUp() end
+ function SettingsView.crankClickUp()
+ 	menu:selectPrev()
+ end
+diff -ruN original/yaposview.lua src/yaposview.lua
+--- original/yaposview.lua	1969-12-31 16:00:00.000000000 -0800
++++ src/yaposview.lua	2025-03-16 11:23:41.427174086 -0700
+@@ -0,0 +1,90 @@
++import("menu")
++import("alert")
++import("images/sharedImages")
++YapOSView = {}
++local menu, controller, keyRepeatTimer
++local stopKeyRepeatTimer = function()
++	if nil ~= keyRepeatTimer then
++		keyRepeatTimer:remove()
++		keyRepeatTimer = nil
++	end
++end
++function YapOSView:deviceWillLock()
++	stopKeyRepeatTimer()
++end
++function YapOSView:initWithController(c)
++	menu = Menu.new()
++	controller = c
++	local menuTitles = {
++		"Test 1",
++		"Test 2",
++		"Test 3",
++	}
++	local menuSubTitles = {
++		{},
++		{},
++		{},
++	}
++	local menuActions = {
++		function() end,
++		function() end,
++		function() end,
++	}
++	menu:setMenuTitlesAndActions(menuTitles, menuSubTitles, menuActions)
++end
++function YapOSView:viewWillAppear()
++	local selectedRow = 1
++	for i = 1, menu:getNumberOfRows() do
++		if i == selectedRow then
++			menu:setSubtitleAtIndex(i, checkImage)
++		else
++			menu:setSubtitleAtIndex(i, nil)
++		end
++	end
++end
++function YapOSView:deinit()
++	stopKeyRepeatTimer()
++	menu = nil
++	controller = nil
++end
++function YapOSView:draw(x, y, w, h)
++	menu:drawmenu(x, y, w, h)
++end
++function YapOSView.AButtonDown()
++	menu:actionButtonDown()
++end
++function YapOSView.AButtonUp()
++	menu:actionButtonUp()
++end
++function YapOSView.BButtonDown() end
++function YapOSView.BButtonUp()
++	controller.popView()
++end
++function YapOSView.upButtonDown()
++	stopKeyRepeatTimer()
++	keyRepeatTimer = playdate.timer.keyRepeatTimerWithDelay(300, 100, function()
++		menu:selectPrev()
++	end)
++end
++function YapOSView.upButtonUp()
++	stopKeyRepeatTimer()
++end
++function YapOSView.downButtonDown()
++	stopKeyRepeatTimer()
++	keyRepeatTimer = playdate.timer.keyRepeatTimerWithDelay(300, 100, function()
++		menu:selectNext()
++	end)
++end
++function YapOSView.downButtonUp()
++	stopKeyRepeatTimer()
++end
++function YapOSView.leftButtonDown() end
++function YapOSView.leftButtonUp() end
++function YapOSView.rightButtonDown() end
++function YapOSView.rightButtonUp() end
++function YapOSView.crankClickUp()
++	menu:selectPrev()
++end
++function YapOSView.crankClickDown()
++	menu:selectNext()
++end
