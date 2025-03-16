@@ -82,7 +82,7 @@ var (
 	pdkeyFilename string
 )
 
-func (a *App) DownloadOS(accessToken string) {
+func (a *App) DownloadPlaydateOS(accessToken string) {
 	req, err := http.NewRequest("GET", "https://play.date/api/v2/firmware/?current_version=2.6.1", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -137,75 +137,22 @@ func (a *App) DownloadOS(accessToken string) {
 	}
 }
 
-var (
-	yaposFilename       string = ""
-	funnyosFilename     string = ""
-	indexosFilename     string = ""
-	funnyloaderFilename string = ""
-)
-
-func (a *App) DownloadYapOS() {
-	f, err := os.CreateTemp("", "yapOS.*.pdx.zip")
-	yaposFilename = f.Name()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	resp, err := http.Get("https://github.com/CrossScarDev/yapOS/releases/latest/download/yapOS.pdx.zip")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	_, err = io.Copy(f, resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+type OSInfo struct {
+	filename       string
+	targetFilename string
+	url            string
 }
 
-func (a *App) DownloadIndexOS() {
-	f, err := os.CreateTemp("", "IndexOS-Core.*.pdx.zip")
-	indexosFilename = f.Name()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	resp, err := http.Get("https://github.com/scratchminer/Index-OS/releases/latest/download/IndexOS-Core.pdx.zip")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	_, err = io.Copy(f, resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+var operatingSystems map[string]OSInfo = map[string]OSInfo{}
 
-func (a *App) DownloadFunnyOS() {
-	f, err := os.CreateTemp("", "FunnyOS.*.pdx.zip")
-	funnyosFilename = f.Name()
+func (a *App) DownloadOS(selectedOS string, url string, filename string, targetFilename string) {
+	f, err := os.CreateTemp("", filename)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
-	resp, err := http.Get("https://github.com/RintaDev5792/FunnyOS/releases/latest/download/FunnyOS.pdx.zip")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	_, err = io.Copy(f, resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
-func (a *App) DownloadFunnyLoader() {
-	f, err := os.CreateTemp("", "FunnyLoader.*.pdx.zip")
-	funnyloaderFilename = f.Name()
-	if err != nil {
-		log.Fatal(err)
-	}
 	defer f.Close()
-	resp, err := http.Get("https://github.com/RintaDev5792/FunnyLoader/releases/latest/download/FunnyLoader.pdx.zip")
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -214,6 +161,8 @@ func (a *App) DownloadFunnyLoader() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	operatingSystems[selectedOS] = OSInfo{filename, targetFilename, url}
 }
 
 func (a *App) ExtractPlaydateOS() {

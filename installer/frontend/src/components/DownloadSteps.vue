@@ -2,7 +2,7 @@
 import { canContinue, step } from '../global';
 import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
 import { ref, watch } from 'vue';
-import { GetPin, FinishRegistration, DownloadOS } from '../../wailsjs/go/main/App'
+import { GetPin, FinishRegistration, DownloadPlaydateOS } from '../../wailsjs/go/main/App'
 
 const error = ref('');
 
@@ -41,7 +41,7 @@ watch(step, async (newStep, oldStep) => {
     accessToken = info["access_token"];
 
     canContinue.value = false;
-    await DownloadOS(accessToken);
+    await DownloadPlaydateOS(accessToken);
     canContinue.value = true;
     downloaded.value = true;
   }
