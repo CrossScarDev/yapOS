@@ -19,6 +19,10 @@ rm crankButton.pdz
 chmod +x unluac.sh
 ./unluac.sh -r . .
 
+rm unluac.sh
+rm unluac.jar
+rm pdz.py
+
 cp -r . ../../../src
 cd ../../..
 rm -r PlaydateOS
