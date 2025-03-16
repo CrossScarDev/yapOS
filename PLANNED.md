@@ -11,9 +11,9 @@ Things I'm planning to add.
 
 ## Settings
 
-- [ ] Custom build system to patch official settings app
+- [x] Custom build system to patch official settings app
 - [ ] Integrate options with launcher
-- [ ] Don't allow on device system updates (They delete yapOS)
+- [x] Don't allow on device system updates (They delete yapOS)
 
 ## Installer
 

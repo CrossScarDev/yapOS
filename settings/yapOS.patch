@@ -1,11 +1,11 @@
 diff -ruN original/settingsview.lua src/settingsview.lua
---- original/settingsview.lua	2025-03-16 11:29:10.242568991 -0700
-+++ src/settingsview.lua	2025-03-16 11:25:53.754310187 -0700
+--- original/settingsview.lua	2025-03-16 11:33:05.976430333 -0700
++++ src/settingsview.lua	2025-03-16 11:41:26.269407075 -0700
 @@ -10,6 +10,7 @@
  import("timezone/timeview")
  import("system/systemview")
  import("wifi/wifiview")
-+import("yaposview")
++import("yapOS/mainview")
  import("utility")
  SettingsView = {}
  local menu, controller
@@ -15,7 +15,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  end
 +local yaposAction = function()
 +	stopKeyRepeatTimer()
-+	controller.pushView(YapOSView, "yapOS", nil, kHeaderImageDevice)
++	controller.pushView(YapOSView, "yapOS", nil, kHeaderImageAlt)
 +end
  local updateAutoLockRow
  local autoLockAction = function()
@@ -178,10 +178,292 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  function SettingsView.crankClickUp()
  	menu:selectPrev()
  end
-diff -ruN original/yaposview.lua src/yaposview.lua
---- original/yaposview.lua	1969-12-31 16:00:00.000000000 -0800
-+++ src/yaposview.lua	2025-03-16 11:23:41.427174086 -0700
-@@ -0,0 +1,90 @@
+diff -ruN original/system/systemupdateview.lua src/system/systemupdateview.lua
+--- original/system/systemupdateview.lua	2025-03-16 11:33:05.976030514 -0700
++++ src/system/systemupdateview.lua	1969-12-31 16:00:00.000000000 -0800
+@@ -1,218 +0,0 @@
+-import("progressbar")
+-import("Server/registration")
+-local gfx = playdate.graphics
+-local geom = playdate.geometry
+-SystemUpdateView = {}
+-local CheckingBg, DownloadingBg, UnpackingBg, ChargeBg, ChargingBg, controller, progressBar, backgroundImage
+-local drawBackground = false
+-local fwupStatusString = ""
+-local sendUserBack = false
+-local locked = false
+-local updateInfo
+-local accountSetupRequested = false
+-local waitForCharge = false
+-local MIN_UPDATE_CHARGE = 25
+-local setBackgroundImage = function(image)
+-	if image ~= backgroundImage then
+-		backgroundImage = image
+-		drawBackground = true
+-	end
+-end
+-function SystemUpdateView:deviceWillLock()
+-	if locked then
+-		playdate.system.abortDeviceLock()
+-		controller.shakeScreen()
+-	end
+-end
+-local statusString = function(str)
+-	if nil == updateInfo then
+-		updateInfo = playdate.server.availableFirmware()
+-	end
+-	if nil ~= updateInfo.version then
+-		return str .. " " .. updateInfo.version
+-	else
+-		return str .. "\226\128\166"
+-	end
+-end
+-local rebootAndApplyFirmwareUpdate = function()
+-	if playdate.server.applyFirmwareUpdate() == false then
+-		locked = false
+-		sendUserBack = true
+-		fwupStatusString = "Error: Couldn't apply update"
+-		progressBar:setVisible(false)
+-		drawBackground = true
+-	end
+-end
+-local updateFirmwareCb = function(newStatus, progressbytes, totalbytes, errorMessage)
+-	if nil ~= progressBar then
+-		progressBar:setProgress(progressbytes, totalbytes)
+-	end
+-	if "idle" == newStatus then
+-		fwupStatusString = "Aborted, something went wrong."
+-		locked = false
+-		progressBar:setVisible(false)
+-	elseif "accounterror" == newStatus then
+-		fwupStatusString = "Account error."
+-		locked = false
+-		progressBar:setVisible(false)
+-		drawBackground = true
+-	elseif "error" == newStatus then
+-		fwupStatusString = "Error: " .. errorMessage
+-		locked = false
+-		sendUserBack = true
+-		progressBar:setVisible(false)
+-		drawBackground = true
+-	elseif "nowifi" == newStatus then
+-		fwupStatusString = "Wi-Fi not available."
+-		locked = false
+-		progressBar:setVisible(false)
+-		drawBackground = true
+-		sendUserBack = true
+-	elseif "noupdate" == newStatus then
+-		fwupStatusString = "You're up to date."
+-		locked = false
+-		progressBar:setVisible(false)
+-	elseif "downloading" == newStatus then
+-		fwupStatusString = statusString("Downloading")
+-		locked = true
+-		setBackgroundImage(DownloadingBg)
+-		progressBar:setVisible(true)
+-	elseif "unpacking" == newStatus then
+-		fwupStatusString = statusString("Unpacking")
+-		locked = true
+-		setBackgroundImage(UnpackingBg)
+-		progressBar:setVisible(true)
+-	elseif "ready" == newStatus then
+-		locked = false
+-		progressBar:setVisible(false)
+-		if playdate.getBatteryPercentage() >= MIN_UPDATE_CHARGE then
+-			rebootAndApplyFirmwareUpdate()
+-		else
+-			waitForCharge = true
+-			local power = playdate.getPowerStatus()
+-			if power.charging then
+-				setBackgroundImage(ChargingBg)
+-			else
+-				setBackgroundImage(ChargeBg)
+-			end
+-		end
+-	end
+-end
+-function SystemUpdateView:initWithController(c)
+-	controller = c
+-	CheckingBg = gfx.image.new("images/SystemUpdate/update-checking")
+-	DownloadingBg = gfx.image.new("images/SystemUpdate/update-downloading")
+-	UnpackingBg = gfx.image.new("images/SystemUpdate/update-unpacking")
+-	ChargeBg = gfx.image.new("images/SystemUpdate/update-charge")
+-	ChargingBg = gfx.image.new("images/SystemUpdate/update-charging")
+-	locked = true
+-	waitForCharge = false
+-	accountSetupRequested = false
+-	setBackgroundImage(CheckingBg)
+-	progressBar = ProgressBar.new()
+-	progressBar:setVisible(false)
+-end
+-function pushAccountView()
+-	playdate.setCollectsGarbage(true)
+-	controller.pushView(AccountView, "Account", nil, kHeaderImageAccount)
+-end
+-function startDownload(message)
+-	playdate.setAutoLockDisabled(true)
+-	updateInfo = nil
+-	if Registration.getRegistrationState() == Registration.state.kRegistered then
+-		fwupStatusString = message
+-		playdate.server.updateFirmware(updateFirmwareCb)
+-	elseif true == accountSetupRequested then
+-		fwupStatusString = "Press \226\146\182 to set up account"
+-		locked = false
+-	else
+-		accountSetupRequested = true
+-		playdate.timer.performAfterDelay(0, pushAccountView)
+-	end
+-	playdate.setCollectsGarbage(false)
+-end
+-function SystemUpdateView:viewDidAppear()
+-	startDownload("Checking for update\226\128\166")
+-end
+-function SystemUpdateView:deinit()
+-	playdate.setCollectsGarbage(true)
+-	updateInfo = nil
+-	controller = nil
+-	progressBar = nil
+-	sendUserBack = nil
+-	fwupStatusString = ""
+-	playdate.setAutoLockDisabled(false)
+-end
+-function SystemUpdateView:draw(x, y, w, h)
+-	if backgroundImage == CheckingBg or drawBackground then
+-		backgroundImage:draw(x, y)
+-		drawBackground = false
+-	end
+-	gfx.setFont(gfx.getUIFont())
+-	local text_y
+-	if progressBar:visible() then
+-		text_y = 175
+-		progressBar:draw(x + 100, y + 155, 200, 10)
+-	else
+-		text_y = 200
+-	end
+-	if sendUserBack then
+-		gfx.drawTextAligned(fwupStatusString, x + 200, text_y - 18, kTextAlignment.center)
+-		gfx.drawTextAligned("Press \226\146\183 to go back", x + 200, text_y + 10, kTextAlignment.center)
+-	elseif waitForCharge then
+-		local percent = math.floor(playdate.getBatteryPercentage())
+-		local power = playdate.getPowerStatus()
+-		if power.charging then
+-			msg = "Charging to " .. MIN_UPDATE_CHARGE .. "%"
+-			setBackgroundImage(ChargingBg)
+-		else
+-			msg = "Please plug in to resume update"
+-			setBackgroundImage(ChargeBg)
+-		end
+-		gfx.fillRect(x, text_y - 14, w - 38, 400 - (text_y - 14))
+-		gfx.drawTextAligned(msg, x + 200, text_y - 14, kTextAlignment.center)
+-		gfx.drawTextAligned("Press \226\146\183 to cancel update", x + 200, text_y + 10, kTextAlignment.center)
+-		if percent >= MIN_UPDATE_CHARGE then
+-			rebootAndApplyFirmwareUpdate()
+-		end
+-	else
+-		gfx.drawTextAligned(fwupStatusString, x + 200, text_y, kTextAlignment.center)
+-	end
+-end
+-function SystemUpdateView.AButtonDown()
+-end
+-function SystemUpdateView.AButtonUp()
+-	if accountSetupRequested and Registration.getRegistrationState() ~= Registration.state.kRegistered then
+-		accountSetupRequested = true
+-		playdate.timer.performAfterDelay(0, pushAccountView)
+-	end
+-end
+-function SystemUpdateView.BButtonDown()
+-end
+-function SystemUpdateView.BButtonUp()
+-	if not locked then
+-		controller.popView()
+-	else
+-		controller.shakeScreen()
+-	end
+-end
+-function SystemUpdateView.upButtonDown()
+-end
+-function SystemUpdateView.upButtonUp()
+-end
+-function SystemUpdateView.downButtonDown()
+-end
+-function SystemUpdateView.downButtonUp()
+-end
+-function SystemUpdateView.leftButtonDown()
+-end
+-function SystemUpdateView.leftButtonUp()
+-end
+-function SystemUpdateView.rightButtonDown()
+-end
+-function SystemUpdateView.rightButtonUp()
+-end
+-function SystemUpdateView.crankClickUp()
+-end
+-function SystemUpdateView.crankClickDown()
+-end
+diff -ruN original/system/systemview.lua src/system/systemview.lua
+--- original/system/systemview.lua	2025-03-16 11:33:05.976030514 -0700
++++ src/system/systemview.lua	2025-03-16 11:42:58.493818287 -0700
+@@ -3,11 +3,9 @@
+ import("system/deviceinfoview")
+ import("system/factoryresetview")
+ import("system/regulatoryview")
+-import("system/systemupdateview")
+ import("system/diagnosticview")
+ import("images/sharedImages")
+ import("devicemetricsview")
+-local gfx = playdate.graphics
+ SystemView = {}
+ local menu, controller, diagnosticfile, keyRepeatTimer
+ local stopKeyRepeatTimer = function()
+@@ -27,10 +25,6 @@
+ 	stopKeyRepeatTimer()
+ 	controller.pushView(FactoryResetView, "Factory Reset", nil, kHeaderImageReset)
+ end
+-local systemUpdateAction = function()
+-	stopKeyRepeatTimer()
+-	controller.pushView(SystemUpdateView, "System Update", nil, kHeaderImageSystemUpdate)
+-end
+ local restartAction = function()
+ 	Alert.show("Restart", [[
+ Are you sure you
+@@ -69,7 +63,6 @@
+ end
+ kMenuTitleDeviceInfo = "Device Info"
+ kMenuTitleFactoryReset = "Factory Reset"
+-kMenuTitleSystemUpdates = "System Update"
+ kMenuTitleDeviceMetrics = "Device Metrics"
+ kMenuTitleRestartDevice = "Restart Playdate"
+ kMenuTitleRestartToDataDisk = "Reboot to Data Disk"
+@@ -78,7 +71,6 @@
+ kMenuTitleDiagnostics = "Diagnostics"
+ local menuTitles = {
+ 	kMenuTitleDeviceInfo,
+-	kMenuTitleSystemUpdates,
+ 	kMenuTitleDeviceMetrics,
+ 	kMenuTitleRegulatory,
+ 	kMenuTitleRestartDevice,
+@@ -92,9 +84,6 @@
+ 	{
+ 		chevronImage
+ 	},
+-	{
+-		chevronImage
+-	},
+ 	{},
+ 	{
+ 		chevronImage
+@@ -108,7 +97,6 @@
+ }
+ local menuActions = {
+ 	deviceInfoAction,
+-	systemUpdateAction,
+ 	deviceMetricsAction,
+ 	regulatoryAction,
+ 	restartAction,
+diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
+--- original/yapOS/mainview.lua	1969-12-31 16:00:00.000000000 -0800
++++ src/yapOS/mainview.lua	2025-03-16 11:39:28.451918178 -0700
+@@ -0,0 +1,75 @@
 +import("menu")
 +import("alert")
 +import("images/sharedImages")
@@ -200,32 +482,17 @@ diff -ruN original/yaposview.lua src/yaposview.lua
 +	menu = Menu.new()
 +	controller = c
 +	local menuTitles = {
-+		"Test 1",
-+		"Test 2",
-+		"Test 3",
++		"Theme",
 +	}
 +	local menuSubTitles = {
-+		{},
-+		{},
-+		{},
++		{ chevronImage },
 +	}
 +	local menuActions = {
-+		function() end,
-+		function() end,
 +		function() end,
 +	}
 +	menu:setMenuTitlesAndActions(menuTitles, menuSubTitles, menuActions)
 +end
-+function YapOSView:viewWillAppear()
-+	local selectedRow = 1
-+	for i = 1, menu:getNumberOfRows() do
-+		if i == selectedRow then
-+			menu:setSubtitleAtIndex(i, checkImage)
-+		else
-+			menu:setSubtitleAtIndex(i, nil)
-+		end
-+	end
-+end
++function YapOSView:viewWillAppear() end
 +function YapOSView:deinit()
 +	stopKeyRepeatTimer()
 +	menu = nil
