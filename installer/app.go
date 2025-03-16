@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type App struct {
@@ -278,4 +279,76 @@ func (a *App) ExtractOS(selectedOS string, pdxPath string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+var pdosPatchedPath string = ""
+
+func (a *App) CompressPlaydateOS() {
+	zipFile, err := os.CreateTemp("", "PlaydateOS-Patched.*.pdos")
+	if err != nil {
+		panic(err)
+	}
+	defer zipFile.Close()
+
+	zipWriter := zip.NewWriter(zipFile)
+	defer zipWriter.Close()
+
+	absSourceDir, err := filepath.Abs(pdosExtractPath)
+	if err != nil {
+		panic(err)
+	}
+
+	err = filepath.Walk(absSourceDir, func(filePath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(absSourceDir, filePath)
+		if err != nil {
+			return err
+		}
+
+		if relPath == "." {
+			return nil
+		}
+
+		zipName := strings.ReplaceAll(relPath, "\\", "/")
+		if info.IsDir() {
+			zipName += "/"
+		}
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+		header.Name = zipName
+		header.Method = zip.Deflate
+
+		writer, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(writer, file)
+		return err
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	pdosPatchedPath = zipFile.Name()
 }

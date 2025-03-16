@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { step, downloadSteps, canContinue } from '../global';
-import { DownloadOS, ExtractOS, ExtractPlaydateOS } from '../../wailsjs/go/main/App';
+import { CompressPlaydateOS, DownloadOS, ExtractOS, ExtractPlaydateOS } from '../../wailsjs/go/main/App';
 
 const funnyLoader = ref<boolean>();
 const yapos = ref(true);
@@ -68,6 +68,7 @@ watch(step, async (newStep, oldStep) => {
     }
 
     status.value = "Repackaging PlaydateOS...";
+    await CompressPlaydateOS()
     status.value = "Uploading Patched PlaydateOS...";
     status.value = "Installing Patched PlaydateOS...";
     status.value = "Cleaning Up...";
