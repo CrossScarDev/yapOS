@@ -4,12 +4,14 @@ import DownloadSteps from './components/DownloadSteps.vue';
 import InstallSteps from './components/InstallSteps.vue';
 </script>
 <template>
-  <DownloadSteps v-if="step <= downloadSteps" />
-  <InstallSteps v-else />
-  <div class="controls" v-if="canContinue">
+  <DownloadSteps />
+  <InstallSteps />
+  <div class="controls">
     <span class="step">Step: {{ step }}/{{ downloadSteps + installSteps }}</span>
-    <button @click="step--" v-if="step != 1 && step != downloadSteps + 1">Back</button>
-    <button @click="step++">Next</button>
+    <template v-if="canContinue">
+      <button @click="step--" v-if="step != 1 && step != downloadSteps + 1">Back</button>
+      <button @click="step++">Next</button>
+    </template>
   </div>
 </template>
 <style>
