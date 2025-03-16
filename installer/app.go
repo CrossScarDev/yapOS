@@ -75,6 +75,11 @@ func (a *App) FinishRegistration(serialNumber string) map[string]any {
 	return res
 }
 
+var (
+	pdosFilename  string
+	pdkeyFilename string
+)
+
 func (a *App) DownloadOS(accessToken string) {
 	req, err := http.NewRequest("GET", "https://play.date/api/v2/firmware/?current_version=2.6.1", nil)
 	if err != nil {
@@ -103,6 +108,7 @@ func (a *App) DownloadOS(accessToken string) {
 	}
 
 	f, err := os.CreateTemp("", "PlaydateOS.*.pdos")
+	pdosFilename = f.Name()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,11 +124,80 @@ func (a *App) DownloadOS(accessToken string) {
 	}
 
 	f, err = os.CreateTemp("", "PlaydateOS.*.pdkey")
+	pdkeyFilename = f.Name()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer f.Close()
 	_, err = f.Write(decryptKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (a *App) DownloadYapOS() {
+	f, err := os.CreateTemp("", "yapOS.*.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	resp, err := http.Get("https://github.com/CrossScarDev/yapOS/releases/latest/download/yapOS.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(f, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (a *App) DownloadIndexOS() {
+	f, err := os.CreateTemp("", "IndexOS-Core.*.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	resp, err := http.Get("https://github.com/scratchminer/Index-OS/releases/latest/download/IndexOS-Core.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(f, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (a *App) DownloadFunnyOS() {
+	f, err := os.CreateTemp("", "FunnyOS.*.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	resp, err := http.Get("https://github.com/RintaDev5792/FunnyOS/releases/latest/download/FunnyOS.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(f, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (a *App) DownloadFunnyLoader() {
+	f, err := os.CreateTemp("", "FunnyLoader.*.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	resp, err := http.Get("https://github.com/RintaDev5792/FunnyLoader/releases/latest/download/FunnyLoader.pdx.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(f, resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}

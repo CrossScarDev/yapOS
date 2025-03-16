@@ -1,15 +1,45 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { step, downloadSteps, installSteps, canContinue } from '../global';
+import { step, downloadSteps, canContinue } from '../global';
+import { DownloadFunnyLoader, DownloadYapOS, DownloadFunnyOS, DownloadIndexOS } from '../../wailsjs/go/main/App';
 
 const funnyLoader = ref(true);
 const yapos = ref(true);
 const indexos = ref(false);
 const funnyos = ref(false);
 
-watch(step, (newStep, oldStep) => {
-  if (newStep - downloadSteps === 1) canContinue.value = false;
-  if (oldStep - downloadSteps === 1) canContinue.value = true;
+const complete = ref(false)
+const status = ref('');
+
+watch(step, async (newStep, oldStep) => {
+  if (newStep - downloadSteps === 1) {
+    canContinue.value = false;
+    return;
+  }
+  if (oldStep - downloadSteps === 1) {
+    canContinue.value = true;
+    return;
+  }
+  if (oldStep - downloadSteps === 2 && newStep - downloadSteps === 3) {
+    canContinue.value = false;
+    if (funnyLoader.value) {
+      status.value = "Downloading FunnyLoader...";
+      await DownloadFunnyLoader();
+    }
+    if (yapos.value) {
+      status.value = "Downloading yapOS...";
+      await DownloadYapOS();
+    }
+    if (indexos.value) {
+      status.value = "Downloading Index OS...";
+      await DownloadIndexOS();
+    }
+    if (funnyos.value) {
+      status.value = "Downloading FunnyOS...";
+      await DownloadFunnyOS();
+    }
+    complete.value = true
+  }
 });
 </script>
 <template>
@@ -55,7 +85,15 @@ watch(step, (newStep, oldStep) => {
         </li>
       </ul>
     </template>
-
+  </template>
+  <template v-else-if="step - downloadSteps === 3">
+    <template v-if="complete">
+      <p>Installation successful.</p>
+    </template>
+    <template v-else>
+      <p>{{ status }}</p>
+      <div class="loader" />
+    </template>
   </template>
 </template>
 
