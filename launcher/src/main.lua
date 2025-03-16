@@ -39,6 +39,10 @@ gfx.setFont(fontBold, gfx.font.kVariantBold)
 local settings = playdate.datastore.read("/System/Data/yapOS")
 local darkMode = false
 
+if settings == nil or settings.dark == nil then
+	playdate.datastore.write({ ["dark"] = darkMode }, "/System/Data/yapOS")
+end
+
 if settings ~= nil and settings.dark ~= nil then
 	darkMode = settings.dark
 end
