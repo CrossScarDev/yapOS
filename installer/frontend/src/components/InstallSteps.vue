@@ -22,24 +22,32 @@ watch(step, async (newStep, oldStep) => {
   }
   if (oldStep - downloadSteps === 2 && newStep - downloadSteps === 3) {
     canContinue.value = false;
+    status.value = "Extracting PlaydateOS...";
+    await ExtractPlaydateOS();
     if (funnyLoader.value) {
       status.value = "Downloading FunnyLoader...";
       await DownloadFunnyLoader();
+      status.value = "Extracting FunnyLoader...";
+      status.value = "Patching PlaydateOS with FunnyLoader...";
     }
     if (yapos.value) {
       status.value = "Downloading yapOS...";
       await DownloadYapOS();
+      status.value = "Extracting yapOS...";
+      status.value = "Patching PlaydateOS with yapOS...";
     }
     if (indexos.value) {
       status.value = "Downloading Index OS...";
       await DownloadIndexOS();
+      status.value = "Extracting Index OS...";
+      status.value = "Patching PlaydateOS with Index OS...";
     }
     if (funnyos.value) {
       status.value = "Downloading FunnyOS...";
       await DownloadFunnyOS();
+      status.value = "Extracting FunnyOS...";
+      status.value = "Patching PlaydateOS with FunnyOS...";
     }
-    status.value = "Extracting PlaydateOS...";
-    await ExtractPlaydateOS();
 
     complete.value = true
   }
