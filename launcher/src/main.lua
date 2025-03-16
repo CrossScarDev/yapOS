@@ -76,6 +76,8 @@ local function renderLeft()
 	gfx.setColor(darkMode and gfx.kColorBlack or gfx.kColorWhite)
 	gfx.fillRect(0, 0, playdate.display.getWidth() / 2, playdate.display.getHeight())
 	listview:drawInRect(0, 0, playdate.display.getWidth() / 2, playdate.display.getHeight())
+
+	playdate.setMenuImage(gfx.getDisplayImage(), playdate.display.getWidth() / 2 - 2)
 end
 
 local function renderRight()
@@ -166,10 +168,17 @@ local function renderRight()
 	end
 end
 
+local frameCount = 0
+
 function playdate.update()
 	playdate.timer.updateTimers()
 	if listview.needsDisplay then
 		renderLeft()
+	end
+	if frameCount < 1 then
+		frameCount += 1
+	elseif frameCount == 1 then
+		playdate.setMenuImage(gfx.getDisplayImage(), playdate.display.getWidth() / 2 - 2)
 	end
 end
 
