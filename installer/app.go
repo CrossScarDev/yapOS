@@ -162,10 +162,12 @@ func (a *App) DownloadOS(selectedOS string, url string, filename string, targetF
 		log.Fatal(err)
 	}
 
-	operatingSystems[selectedOS] = OSInfo{filename, targetFilename, url}
+	operatingSystems[selectedOS] = OSInfo{f.Name(), targetFilename, url}
 }
 
-func (a *App) ExtractPlaydateOS() {
+var pdosExtractPath string = ""
+
+func (a *App) ExtractPlaydateOS(funnyloader bool) {
 	extractPath, err := os.MkdirTemp("", "PlaydateOS.*")
 	if err != nil {
 		log.Fatal(err)
@@ -186,6 +188,10 @@ func (a *App) ExtractPlaydateOS() {
 			continue
 		}
 
+		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+			log.Fatal(err)
+		}
+
 		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			log.Fatal(err)
@@ -200,5 +206,77 @@ func (a *App) ExtractPlaydateOS() {
 
 		dstFile.Close()
 		srcFile.Close()
+	}
+
+	if funnyloader {
+		err = os.Mkdir(filepath.Join(extractPath, "System", "Launchers"), os.ModePerm)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = os.Rename(filepath.Join(extractPath, "System", "Launcher.pdx"), filepath.Join(extractPath, "System", "Launchers", "StockLauncher.pdx"))
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		err = os.Rename(filepath.Join(extractPath, "System", "Launcher.pdx"), filepath.Join(extractPath, "System", "StockLauncher.pdx"))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	pdosExtractPath = extractPath
+}
+
+func (a *App) ExtractOS(selectedOS string, pdxPath string) {
+	extractPath, err := os.MkdirTemp("", selectedOS)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	zipReader, err := zip.OpenReader(operatingSystems[selectedOS].filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer zipReader.Close()
+
+	for _, f := range zipReader.File {
+		filePath := filepath.Join(extractPath, f.Name)
+		if f.FileInfo().IsDir() {
+			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
+				log.Fatal(err)
+			}
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+			log.Fatal(err)
+		}
+
+		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			log.Fatal(err)
+		}
+		srcFile, err := f.Open()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if _, err := io.Copy(dstFile, srcFile); err != nil {
+			log.Fatal(err)
+		}
+
+		dstFile.Close()
+		srcFile.Close()
+	}
+
+	if operatingSystems[selectedOS].targetFilename == "Launcher.pdx" {
+		err = os.Rename(filepath.Join(extractPath, pdxPath), filepath.Join(pdosExtractPath, "System", "Launcher.pdx"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	err = os.Rename(filepath.Join(extractPath, pdxPath), filepath.Join(pdosExtractPath, "System", "Launchers", operatingSystems[selectedOS].targetFilename))
+	if err != nil {
+		log.Fatal(err)
 	}
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { step, downloadSteps, canContinue } from '../global';
-import { DownloadOS, ExtractPlaydateOS } from '../../wailsjs/go/main/App';
+import { DownloadOS, ExtractOS, ExtractPlaydateOS } from '../../wailsjs/go/main/App';
 
 const funnyLoader = ref<boolean>();
 const yapos = ref(true);
@@ -24,50 +24,50 @@ watch(step, async (newStep, oldStep) => {
   if (oldStep - downloadSteps === 2 && newStep - downloadSteps === 3) {
     canContinue.value = false;
     status.value = "Extracting PlaydateOS...";
-    await ExtractPlaydateOS();
+    await ExtractPlaydateOS(funnyLoader.value as boolean);
     if (funnyLoader.value) {
       status.value = "Downloading FunnyLoader...";
       await DownloadOS("FunnyLoader", "https://github.com/RintaDev5792/FunnyLoader/releases/latest/download/FunnyLoader.pdx.zip", "FunnyLoader.*.pdx.zip", "Launcher.pdx");
       status.value = "Extracting FunnyLoader...";
-      status.value = "Patching PlaydateOS with FunnyLoader...";
+      await ExtractOS("FunnyLoader", "FunnyLoader.pdx");
       if (yapos.value) {
         status.value = "Downloading yapOS...";
         await DownloadOS("yapOS", "https://github.com/CrossScarDev/yapOS/releases/latest/download/yapOS.pdx.zip", "yapOS.*.pdx.zip", "yapOS.pdx");
         status.value = "Extracting yapOS...";
-        status.value = "Patching PlaydateOS with yapOS...";
+        await ExtractOS("yapOS", "yapOS.pdx");
       }
       if (indexos.value) {
         status.value = "Downloading Index OS...";
         await DownloadOS("Index OS", "https://github.com/scratchminer/Index-OS/releases/latest/download/IndexOS-Core.pdx.zip", "IndexOS.*.pdx.zip", "IndexOS.pdx");
         status.value = "Extracting Index OS...";
-        status.value = "Patching PlaydateOS with Index OS...";
+        await ExtractOS("Index OS", "IndexOS-Core.pdx");
       }
       if (funnyos.value) {
         status.value = "Downloading FunnyOS...";
         await DownloadOS("FunnyOS", "https://github.com/RintaDev5792/FunnyOS/releases/latest/download/FunnyOS.pdx.zip", "FunnyOS.*.pdx.zip", "FunnyOS.pdx");
         status.value = "Extracting FunnyOS...";
-        status.value = "Patching PlaydateOS with FunnyOS...";
+        await ExtractOS("FunnyOS", "FunnyOS.pdx");
       }
     } else {
       if (selectedOS.value === "yapOS") {
         status.value = "Downloading yapOS...";
         await DownloadOS("yapOS", "https://github.com/CrossScarDev/yapOS/releases/latest/download/yapOS.pdx.zip", "yapOS.*.pdx.zip", "Launcher.pdx");
         status.value = "Extracting yapOS...";
-        status.value = "Patching PlaydateOS with yapOS...";
+        await ExtractOS("yapOS", "yapOS.pdx");
       } else if (selectedOS.value === "Index OS") {
         status.value = "Downloading Index OS...";
         await DownloadOS("Index OS", "https://github.com/scratchminer/Index-OS/releases/latest/download/IndexOS-Core.pdx.zip", "IndexOS.*.pdx.zip", "Launcher.pdx");
         status.value = "Extracting Index OS...";
-        status.value = "Patching PlaydateOS with Index OS...";
+        await ExtractOS("Index OS", "IndexOS-Core.pdx");
       } else if (selectedOS.value === "FunnyOS") {
         status.value = "Downloading FunnyOS...";
         await DownloadOS("FunnyOS", "https://github.com/RintaDev5792/FunnyOS/releases/latest/download/FunnyOS.pdx.zip", "FunnyOS.*.pdx.zip", "Launcher.pdx");
         status.value = "Extracting FunnyOS...";
-        status.value = "Patching PlaydateOS with FunnyOS...";
+        await ExtractOS("FunnyOS", "FunnyOS.pdx");
       }
     }
 
-    status.value = "Copying Access Token...";
+    // status.value = "Copying Access Token...";
     status.value = "Repackaging PlaydateOS...";
     status.value = "Uploading Patched PlaydateOS...";
     status.value = "Installing Patched PlaydateOS...";

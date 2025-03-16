@@ -10,8 +10,12 @@ export function DownloadPlaydateOS(arg1) {
   return window['go']['main']['App']['DownloadPlaydateOS'](arg1);
 }
 
-export function ExtractPlaydateOS() {
-  return window['go']['main']['App']['ExtractPlaydateOS']();
+export function ExtractOS(arg1, arg2) {
+  return window['go']['main']['App']['ExtractOS'](arg1, arg2);
+}
+
+export function ExtractPlaydateOS(arg1) {
+  return window['go']['main']['App']['ExtractPlaydateOS'](arg1);
 }
 
 export function FinishRegistration(arg1) {

@@ -5,7 +5,9 @@ export function DownloadOS(arg1:string,arg2:string,arg3:string,arg4:string):Prom
 
 export function DownloadPlaydateOS(arg1:string):Promise<void>;
 
-export function ExtractPlaydateOS():Promise<void>;
+export function ExtractOS(arg1:string,arg2:string):Promise<void>;
+
+export function ExtractPlaydateOS(arg1:boolean):Promise<void>;
 
 export function FinishRegistration(arg1:string):Promise<Record<string, any>>;
 
