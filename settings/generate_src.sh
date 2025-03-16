@@ -23,6 +23,8 @@ rm unluac.sh
 rm unluac.jar
 rm pdz.py
 
+rm -r CoreLibs
+
 cp -r . ../../../src
 cd ../../..
 rm -r PlaydateOS
