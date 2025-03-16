@@ -4,7 +4,7 @@ Things I'm planning to add.
 
 ## Launcher
 
-- [ ] Only render when scrolling
+- [x] Only render when scrolling
 - [ ] Add option to animate icons
 - [ ] Add option to customize scrolling speed
 - [ ] Press `B` to see info in fullscreen

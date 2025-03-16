@@ -5,7 +5,7 @@ Binary files original/images/SystemUpdate/update-downloading.pdi and src/images/
 Binary files original/images/SystemUpdate/update-unpacking.pdi and src/images/SystemUpdate/update-unpacking.pdi differ
 diff -ruN original/pdxinfo src/pdxinfo
 --- original/pdxinfo	2025-03-16 11:33:05.976030514 -0700
-+++ src/pdxinfo	2025-03-16 12:09:07.788618193 -0700
++++ src/pdxinfo	2025-03-16 12:31:22.023673343 -0700
 @@ -1,7 +1,6 @@
 -name=Settings
 -author=Panic Inc.
@@ -17,7 +17,7 @@ diff -ruN original/pdxinfo src/pdxinfo
  imagePath=LauncherAssets/
 -pdxversion=20601
 -buildtime=785877031
-+pdxversion=0.1.2
++pdxversion=0.2.0
 diff -ruN original/settingsview.lua src/settingsview.lua
 --- original/settingsview.lua	2025-03-16 11:33:05.976430333 -0700
 +++ src/settingsview.lua	2025-03-16 11:41:26.269407075 -0700

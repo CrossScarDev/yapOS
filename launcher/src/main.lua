@@ -47,11 +47,6 @@ if settings ~= nil and settings.dark ~= nil then
 	darkMode = settings.dark
 end
 
-menu:addCheckmarkMenuItem("Dark Mode", darkMode, function(v)
-	darkMode = v
-	playdate.datastore.write({ ["dark"] = darkMode }, "/System/Data/yapOS")
-end)
-
 local listview = ui.gridview.new(playdate.display.getWidth() / 2 - 7.5, font:getHeight() + 20)
 listview:setNumberOfRows(#games)
 listview:setNumberOfColumns(1)
@@ -77,10 +72,15 @@ function listview:drawCell(section, row, column, selected, x, y, width, height)
 	)
 end
 
-function playdate.update()
-	gfx.clear(darkMode and gfx.kColorBlack or gfx.kColorWhite)
-	playdate.timer.updateTimers()
-	listview:drawInRect(0, 0, playdate.display.getWidth(), playdate.display.getHeight())
+local function renderLeft()
+	gfx.setColor(darkMode and gfx.kColorBlack or gfx.kColorWhite)
+	gfx.fillRect(0, 0, playdate.display.getWidth() / 2, playdate.display.getHeight())
+	listview:drawInRect(0, 0, playdate.display.getWidth() / 2, playdate.display.getHeight())
+end
+
+local function renderRight()
+	gfx.setColor(darkMode and gfx.kColorBlack or gfx.kColorWhite)
+	gfx.fillRect(playdate.display.getWidth() / 2, 0, playdate.display.getWidth() / 2, playdate.display.getHeight())
 
 	local selectedGame = games[listview:getSelectedRow()]
 	local infoOffset = 5
@@ -166,10 +166,18 @@ function playdate.update()
 	end
 end
 
+function playdate.update()
+	playdate.timer.updateTimers()
+	if listview.needsDisplay then
+		renderLeft()
+	end
+end
+
 function playdate.downButtonDown()
 	if listview:getSelectedRow() < #games then
 		listview:setSelectedRow(listview:getSelectedRow() + 1)
 		listview:scrollCellToCenter(1, listview:getSelectedRow(), 1)
+		renderRight()
 	end
 end
 
@@ -177,9 +185,20 @@ function playdate.upButtonDown()
 	if listview:getSelectedRow() > 1 then
 		listview:setSelectedRow(listview:getSelectedRow() - 1)
 		listview:scrollCellToCenter(1, listview:getSelectedRow(), 1)
+		renderRight()
 	end
 end
 
 function playdate.AButtonDown()
 	sys.switchToGame(games[listview:getSelectedRow()]["path"])
 end
+
+menu:addCheckmarkMenuItem("Dark Mode", darkMode, function(v)
+	darkMode = v
+	playdate.datastore.write({ ["dark"] = darkMode }, "/System/Data/yapOS")
+	renderLeft()
+	renderRight()
+end)
+
+renderLeft()
+renderRight()
