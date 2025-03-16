@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -9,6 +10,7 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type App struct {
@@ -135,8 +137,16 @@ func (a *App) DownloadOS(accessToken string) {
 	}
 }
 
+var (
+	yaposFilename       string = ""
+	funnyosFilename     string = ""
+	indexosFilename     string = ""
+	funnyloaderFilename string = ""
+)
+
 func (a *App) DownloadYapOS() {
 	f, err := os.CreateTemp("", "yapOS.*.pdx.zip")
+	yaposFilename = f.Name()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,6 +164,7 @@ func (a *App) DownloadYapOS() {
 
 func (a *App) DownloadIndexOS() {
 	f, err := os.CreateTemp("", "IndexOS-Core.*.pdx.zip")
+	indexosFilename = f.Name()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -171,6 +182,7 @@ func (a *App) DownloadIndexOS() {
 
 func (a *App) DownloadFunnyOS() {
 	f, err := os.CreateTemp("", "FunnyOS.*.pdx.zip")
+	funnyosFilename = f.Name()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -188,6 +200,7 @@ func (a *App) DownloadFunnyOS() {
 
 func (a *App) DownloadFunnyLoader() {
 	f, err := os.CreateTemp("", "FunnyLoader.*.pdx.zip")
+	funnyloaderFilename = f.Name()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -200,5 +213,43 @@ func (a *App) DownloadFunnyLoader() {
 	_, err = io.Copy(f, resp.Body)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func (a *App) ExtractPlaydateOS() {
+	extractPath, err := os.MkdirTemp("", "PlaydateOS.*")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	zipReader, err := zip.OpenReader(pdosFilename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer zipReader.Close()
+
+	for _, f := range zipReader.File {
+		filePath := filepath.Join(extractPath, f.Name)
+		if f.FileInfo().IsDir() {
+			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
+				log.Fatal(err)
+			}
+			continue
+		}
+
+		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			log.Fatal(err)
+		}
+		srcFile, err := f.Open()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if _, err := io.Copy(dstFile, srcFile); err != nil {
+			log.Fatal(err)
+		}
+
+		dstFile.Close()
+		srcFile.Close()
 	}
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { step, downloadSteps, canContinue } from '../global';
-import { DownloadFunnyLoader, DownloadYapOS, DownloadFunnyOS, DownloadIndexOS } from '../../wailsjs/go/main/App';
+import { DownloadFunnyLoader, DownloadYapOS, DownloadFunnyOS, DownloadIndexOS, ExtractPlaydateOS } from '../../wailsjs/go/main/App';
 
 const funnyLoader = ref(true);
 const yapos = ref(true);
@@ -38,6 +38,9 @@ watch(step, async (newStep, oldStep) => {
       status.value = "Downloading FunnyOS...";
       await DownloadFunnyOS();
     }
+    status.value = "Extracting PlaydateOS...";
+    await ExtractPlaydateOS();
+
     complete.value = true
   }
 });

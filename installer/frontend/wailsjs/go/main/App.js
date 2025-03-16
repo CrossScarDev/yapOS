@@ -22,6 +22,10 @@ export function DownloadYapOS() {
   return window['go']['main']['App']['DownloadYapOS']();
 }
 
+export function ExtractPlaydateOS() {
+  return window['go']['main']['App']['ExtractPlaydateOS']();
+}
+
 export function FinishRegistration(arg1) {
   return window['go']['main']['App']['FinishRegistration'](arg1);
 }

@@ -11,6 +11,8 @@ export function DownloadOS(arg1:string):Promise<void>;
 
 export function DownloadYapOS():Promise<void>;
 
+export function ExtractPlaydateOS():Promise<void>;
+
 export function FinishRegistration(arg1:string):Promise<Record<string, any>>;
 
 export function GetPin(arg1:string):Promise<Record<string, any>>;
