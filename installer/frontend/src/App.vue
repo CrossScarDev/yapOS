@@ -7,6 +7,7 @@ import InstallSteps from './components/InstallSteps.vue';
   <DownloadSteps v-if="step <= downloadSteps" />
   <InstallSteps v-else />
   <div class="controls" v-if="canContinue">
+    <span class="step">Step: {{ step }}/{{ downloadSteps + installSteps }}</span>
     <button @click="step--" v-if="step != 1 && step != downloadSteps + 1">Back</button>
     <button @click="step++">Next</button>
   </div>
@@ -103,6 +104,7 @@ input[type="radio"] {
   padding: 0.75rem;
   justify-content: right;
   gap: 0.75rem;
+  align-items: center;
 }
 
 .error {
