@@ -13,7 +13,7 @@ Things I'm planning to add.
 
 - [ ] Custom build system to patch official settings app
 - [ ] Integrate options with launcher
-- [ ] Don't allow on device system updates (It would delete yapOS)
+- [ ] Don't allow on device system updates (They delete yapOS)
 
 ## Installer
 
