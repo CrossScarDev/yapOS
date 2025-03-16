@@ -48,6 +48,10 @@ watch(step, async (newStep, oldStep) => {
       status.value = "Extracting FunnyOS...";
       status.value = "Patching PlaydateOS with FunnyOS...";
     }
+    status.value = "Repackaging PlaydateOS...";
+    status.value = "Uploading Patched PlaydateOS...";
+    status.value = "Installing Patched PlaydateOS...";
+    status.value = "Cleaning Up...";
 
     complete.value = true
   }
