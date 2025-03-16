@@ -1,3 +1,8 @@
+Binary files original/images/SystemUpdate/update-charge.pdi and src/images/SystemUpdate/update-charge.pdi differ
+Binary files original/images/SystemUpdate/update-charging.pdi and src/images/SystemUpdate/update-charging.pdi differ
+Binary files original/images/SystemUpdate/update-checking.pdi and src/images/SystemUpdate/update-checking.pdi differ
+Binary files original/images/SystemUpdate/update-downloading.pdi and src/images/SystemUpdate/update-downloading.pdi differ
+Binary files original/images/SystemUpdate/update-unpacking.pdi and src/images/SystemUpdate/update-unpacking.pdi differ
 diff -ruN original/settingsview.lua src/settingsview.lua
 --- original/settingsview.lua	2025-03-16 11:33:05.976430333 -0700
 +++ src/settingsview.lua	2025-03-16 11:41:26.269407075 -0700
