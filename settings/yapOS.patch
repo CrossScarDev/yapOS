@@ -3,6 +3,21 @@ Binary files original/images/SystemUpdate/update-charging.pdi and src/images/Sys
 Binary files original/images/SystemUpdate/update-checking.pdi and src/images/SystemUpdate/update-checking.pdi differ
 Binary files original/images/SystemUpdate/update-downloading.pdi and src/images/SystemUpdate/update-downloading.pdi differ
 Binary files original/images/SystemUpdate/update-unpacking.pdi and src/images/SystemUpdate/update-unpacking.pdi differ
+diff -ruN original/pdxinfo src/pdxinfo
+--- original/pdxinfo	2025-03-16 11:33:05.976030514 -0700
++++ src/pdxinfo	2025-03-16 12:06:38.646409884 -0700
+@@ -1,7 +1,6 @@
+-name=Settings
+-author=Panic Inc.
+-description=Settings
++name=yapOS Settings
++author=CrossScar
++description=Patched version of PlaydateOS Settings.
+ bundleID=com.panic.settings
+ imagePath=LauncherAssets/
+-pdxversion=20601
+-buildtime=785877031
++pdxversion=0.1.1
 diff -ruN original/settingsview.lua src/settingsview.lua
 --- original/settingsview.lua	2025-03-16 11:33:05.976430333 -0700
 +++ src/settingsview.lua	2025-03-16 11:41:26.269407075 -0700
@@ -467,11 +482,12 @@ diff -ruN original/system/systemview.lua src/system/systemview.lua
  	restartAction,
 diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 --- original/yapOS/mainview.lua	1969-12-31 16:00:00.000000000 -0800
-+++ src/yapOS/mainview.lua	2025-03-16 11:39:28.451918178 -0700
-@@ -0,0 +1,75 @@
++++ src/yapOS/mainview.lua	2025-03-16 12:04:29.903697306 -0700
+@@ -0,0 +1,80 @@
 +import("menu")
 +import("alert")
 +import("images/sharedImages")
++import("yapOS/themeview")
 +YapOSView = {}
 +local menu, controller, keyRepeatTimer
 +local stopKeyRepeatTimer = function()
@@ -483,6 +499,10 @@ diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 +function YapOSView:deviceWillLock()
 +	stopKeyRepeatTimer()
 +end
++function ThemeAction()
++	stopKeyRepeatTimer()
++	controller.pushView(ThemeView, "Theme", nil, kHeaderImageDevice)
++end
 +function YapOSView:initWithController(c)
 +	menu = Menu.new()
 +	controller = c
@@ -493,7 +513,7 @@ diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 +		{ chevronImage },
 +	}
 +	local menuActions = {
-+		function() end,
++		ThemeAction,
 +	}
 +	menu:setMenuTitlesAndActions(menuTitles, menuSubTitles, menuActions)
 +end
@@ -542,5 +562,133 @@ diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 +	menu:selectPrev()
 +end
 +function YapOSView.crankClickDown()
++	menu:selectNext()
++end
+diff -ruN original/yapOS/themeview.lua src/yapOS/themeview.lua
+--- original/yapOS/themeview.lua	1969-12-31 16:00:00.000000000 -0800
++++ src/yapOS/themeview.lua	2025-03-16 12:05:24.119705361 -0700
+@@ -0,0 +1,124 @@
++import("menu")
++import("alert")
++import("images/sharedImages")
++ThemeView = {}
++local menu, controller, keyRepeatTimer
++local stopKeyRepeatTimer = function()
++	if nil ~= keyRepeatTimer then
++		keyRepeatTimer:remove()
++		keyRepeatTimer = nil
++	end
++end
++function ThemeView:deviceWillLock()
++	stopKeyRepeatTimer()
++end
++local boolToDisplay = function(dark)
++	if dark then
++		return "Dark"
++	else
++		return "Light"
++	end
++end
++local boolToRowNumber = function(dark)
++	if dark then
++		return 1
++	else
++		return 2
++	end
++end
++function ThemeView.currentTheme()
++	return boolToDisplay(playdate.datastore.read("/System/Data/yapOS").dark)
++end
++local setTheme = function(newTheme)
++	local newSelection = boolToRowNumber(newTheme)
++	local currentTheme = playdate.datastore.read("/System/Data/yapOS").dark
++	local currentSelection = boolToRowNumber(currentTheme)
++	if currentSelection ~= newSelection then
++		menu:setSubtitleAtIndex(currentSelection, nil)
++		menu:setSubtitleAtIndex(newSelection, checkImage)
++		playdate.datastore.write({ ["dark"] = newTheme }, "/System/Data/yapOS")
++		currentSelection = newSelection
++	end
++end
++local DarkAction = function()
++	setTheme(true)
++end
++local LightAction = function()
++	setTheme(false)
++end
++function ThemeView:initWithController(c)
++	menu = Menu.new()
++	controller = c
++	local kMenuTitleDark = boolToDisplay(true)
++	local kMenuTitleLight = boolToDisplay(false)
++	local menuTitles = {
++		kMenuTitleDark,
++		kMenuTitleLight,
++	}
++	local menuSubTitles = {
++		{},
++		{},
++	}
++	local menuActions = {
++		DarkAction,
++		LightAction,
++	}
++	menu:setMenuTitlesAndActions(menuTitles, menuSubTitles, menuActions)
++end
++function ThemeView:viewWillAppear()
++	local theme = playdate.datastore.read("/System/Data/yapOS").dark
++	local selectedRow = boolToRowNumber(theme)
++	for i = 1, menu:getNumberOfRows() do
++		if i == selectedRow then
++			menu:setSubtitleAtIndex(i, checkImage)
++		else
++			menu:setSubtitleAtIndex(i, nil)
++		end
++	end
++end
++function ThemeView:deinit()
++	stopKeyRepeatTimer()
++	menu = nil
++	controller = nil
++end
++function ThemeView:draw(x, y, w, h)
++	menu:drawmenu(x, y, w, h)
++end
++function ThemeView.AButtonDown()
++	menu:actionButtonDown()
++end
++function ThemeView.AButtonUp()
++	menu:actionButtonUp()
++end
++function ThemeView.BButtonDown() end
++function ThemeView.BButtonUp()
++	controller.popView()
++end
++function ThemeView.upButtonDown()
++	stopKeyRepeatTimer()
++	keyRepeatTimer = playdate.timer.keyRepeatTimerWithDelay(300, 100, function()
++		menu:selectPrev()
++	end)
++end
++function ThemeView.upButtonUp()
++	stopKeyRepeatTimer()
++end
++function ThemeView.downButtonDown()
++	stopKeyRepeatTimer()
++	keyRepeatTimer = playdate.timer.keyRepeatTimerWithDelay(300, 100, function()
++		menu:selectNext()
++	end)
++end
++function ThemeView.downButtonUp()
++	stopKeyRepeatTimer()
++end
++function ThemeView.leftButtonDown() end
++function ThemeView.leftButtonUp() end
++function ThemeView.rightButtonDown() end
++function ThemeView.rightButtonUp() end
++function ThemeView.crankClickUp()
++	menu:selectPrev()
++end
++function ThemeView.crankClickDown()
 +	menu:selectNext()
 +end
