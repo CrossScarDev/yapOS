@@ -8,6 +8,7 @@ Things I'm planning to add.
 - [ ] Add option to animate icons
 - [ ] Add option to customize scrolling speed
 - [ ] Press `B` or `Right` to see info in fullscreen
+- [ ] Custom dark mode icons
 
 ## Settings
 
