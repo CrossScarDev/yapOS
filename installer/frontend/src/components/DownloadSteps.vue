@@ -60,7 +60,7 @@ watch(step, async (newStep, oldStep) => {
     <p>
       Please input your Playdate's serial number.
     </p>
-    <input v-model="serialNumber" placeholder="PDU1-Y" />
+    <input v-model="serialNumber" placeholder="PDU1-Y" type="text" />
   </template>
   <template v-else-if="step === 3">
     <p>Please go to https://play.date/pin and enter the following pin: <b>{{ pin }}</b></p>
