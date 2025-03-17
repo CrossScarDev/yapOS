@@ -20,4 +20,6 @@ Things I'm planning to add.
 
 - [x] Make FunnyLoader optional
 - [x] Allow installing other operating systems (FunnyOS and Index OS)
-- [ ] Make it actually install
+- [x] Make it actually install
+- [ ] Install yapOS Settings
+- [ ] Allow adding custom operating systems

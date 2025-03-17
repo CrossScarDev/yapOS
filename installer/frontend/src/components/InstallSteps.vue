@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { step, downloadSteps, canContinue } from '../global';
-import { CompressPlaydateOS, DownloadOS, ExtractOS, ExtractPlaydateOS } from '../../wailsjs/go/main/App';
+import { CompressPlaydateOS, DownloadOS, ExtractOS, ExtractPlaydateOS, GetSerialPorts, InstallPatchedPlaydateOS, UploadPatchedPlaydateOS, CleanUp } from '../../wailsjs/go/main/App';
 
 const funnyLoader = ref<boolean>();
 const yapos = ref(true);
@@ -9,8 +9,10 @@ const indexos = ref(false);
 const funnyos = ref(false);
 const selectedOS = ref<"yapOS" | "Index OS" | "FunnyOS">("yapOS");
 
-const complete = ref(false)
 const status = ref('');
+
+const ports = ref<string[]>([]);
+const selectedPort = ref<string>();
 
 watch(step, async (newStep, oldStep) => {
   if (newStep - downloadSteps === 1) {
@@ -69,11 +71,26 @@ watch(step, async (newStep, oldStep) => {
 
     status.value = "Repackaging PlaydateOS...";
     await CompressPlaydateOS()
-    status.value = "Uploading Patched PlaydateOS...";
-    status.value = "Installing Patched PlaydateOS...";
-    status.value = "Cleaning Up...";
+    status.value = "Fetching List of Serial Ports...";
+    ports.value = await GetSerialPorts();
 
-    complete.value = true
+    step.value++;
+    return;
+  }
+  if (oldStep - downloadSteps === 4 && newStep - downloadSteps === 5) {
+    status.value = "Uploading Patched PlaydateOS...";
+    await UploadPatchedPlaydateOS(selectedPort.value as string);
+    step.value++;
+    canContinue.value = true;
+    return;
+  }
+  if (oldStep - downloadSteps === 6 && newStep - downloadSteps === 7) {
+    await InstallPatchedPlaydateOS(selectedPort.value as string);
+    return;
+  }
+  if (oldStep - downloadSteps === 7 && newStep - downloadSteps === 8) {
+    await CleanUp(selectedPort.value as string);
+    step.value++;
   }
 });
 </script>
@@ -122,13 +139,33 @@ watch(step, async (newStep, oldStep) => {
     </template>
   </template>
   <template v-else-if="step - downloadSteps === 3">
-    <template v-if="complete">
-      <p>Installation successful.</p>
-    </template>
-    <template v-else>
-      <p>{{ status }}</p>
-      <div class="loader" />
-    </template>
+    <p>{{ status }}</p>
+    <div class="loader" />
+  </template>
+  <template v-else-if="step - downloadSteps === 4">
+    <p>Please select your Playdate's serial port.</p>
+    <button v-for="(port, i) in ports" :key="i" @click="selectedPort = port; step++">{{ port }}</button>
+    <a href="#" @click="async () => ports = await GetSerialPorts()">Reload Ports</a>
+  </template>
+  <template v-else-if="step - downloadSteps === 5">
+    <p>{{ status }}</p>
+    <div class="loader" />
+  </template>
+  <template v-else-if="step - downloadSteps === 6">
+    <p>
+      If your Playdate hasn't returned to the Launcher yet, please press <b>A</b> and wait until it returns to the
+      launcher.
+    </p>
+  </template>
+  <template v-else-if="step - downloadSteps === 7">
+    <p>
+      In a few seconds, your Playdate has begin to install your chosen operating systems, press next when it is
+      finished.
+    </p>
+  </template>
+  <template v-else-if="step - downloadSteps === 8">
+    <p>Cleaning Up...</p>
+    <div class="loader" />
   </template>
 </template>
 

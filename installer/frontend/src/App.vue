@@ -6,7 +6,10 @@ import InstallSteps from './components/InstallSteps.vue';
 <template>
   <DownloadSteps />
   <InstallSteps />
-  <div class="controls">
+  <template v-if="step - downloadSteps - installSteps === 1">
+    <p>Your chosen operating systems have been installed! If your Playdate hasn't rebooted already press <b>A</b>.</p>
+  </template>
+  <div class="controls" v-if="step - downloadSteps - installSteps < 1">
     <span class="step">Step: {{ step }}/{{ downloadSteps + installSteps }}</span>
     <template v-if="canContinue">
       <button @click="step--" v-if="step != 1 && step != downloadSteps + 1">Back</button>
