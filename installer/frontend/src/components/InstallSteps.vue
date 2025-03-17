@@ -159,7 +159,7 @@ watch(step, async (newStep, oldStep) => {
   </template>
   <template v-else-if="step - downloadSteps === 7">
     <p>
-      In a few seconds, your Playdate has begin to install your chosen operating systems, press next when it is
+      In a few seconds, your Playdate will begin to install your chosen operating systems, press next when it is
       finished.
     </p>
   </template>
