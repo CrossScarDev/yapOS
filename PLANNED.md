@@ -15,6 +15,7 @@ Things I'm planning to add.
 - [x] Custom build system to patch official settings app
 - [x] Integrate options with launcher
 - [x] Don't allow on device system updates (They delete yapOS)
+- [ ] Custom On-Device Updater (Long time from now and after network api added)
 
 ## Installer
 
