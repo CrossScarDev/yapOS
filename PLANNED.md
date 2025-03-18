@@ -24,3 +24,5 @@ Things I'm planning to add.
 - [x] Make it actually install
 - [ ] Install yapOS Settings
 - [ ] Allow adding custom operating systems
+- [ ] Auto-detect Playdates (for serial port)
+- [ ] Fix Volume bug on macOS
