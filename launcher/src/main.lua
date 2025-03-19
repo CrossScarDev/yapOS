@@ -11,6 +11,9 @@ local menu <const> = playdate.getSystemMenu()
 
 local games = {}
 
+local scrollSoundUp = playdate.sound.fileplayer.new("systemsfx/01-selection-trimmed")
+local scrollSoundDown = playdate.sound.fileplayer.new("systemsfx/02-selection-reverse-trimmed")
+
 for _, group in ipairs(sys.getInstalledGameList()) do
 	for _, game in ipairs(group) do
 		if sys.game.getPath(game) then
@@ -194,6 +197,7 @@ function playdate.downButtonDown()
 	if listview:getSelectedRow() < #games then
 		listview:setSelectedRow(listview:getSelectedRow() + 1)
 		listview:scrollCellToCenter(1, listview:getSelectedRow(), 1)
+		scrollSoundDown:play()
 		renderRight()
 	end
 end
@@ -202,6 +206,7 @@ function playdate.upButtonDown()
 	if listview:getSelectedRow() > 1 then
 		listview:setSelectedRow(listview:getSelectedRow() - 1)
 		listview:scrollCellToCenter(1, listview:getSelectedRow(), 1)
+		scrollSoundUp:play()
 		renderRight()
 	end
 end
