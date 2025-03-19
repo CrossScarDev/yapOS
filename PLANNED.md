@@ -32,3 +32,4 @@ Things I'm planning to add.
 - [ ] Allow adding custom operating systems
 - [ ] Auto-detect Playdates (for serial port)
 - [ ] Fix Volume bug on macOS
+- [ ] Request to mount Playdate if it is not already mounted
