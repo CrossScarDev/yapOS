@@ -22,6 +22,7 @@ Things I'm planning to add.
 - [x] Integrate options with launcher
 - [x] Don't allow on device system updates (They delete yapOS)
 - [ ] Custom On-Device Updater (Long time from now and after network api added)
+- [ ] Dark Mode
 
 ## Installer
 
