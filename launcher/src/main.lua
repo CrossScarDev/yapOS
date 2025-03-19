@@ -14,6 +14,16 @@ local games = {}
 local scrollSoundUp = playdate.sound.fileplayer.new("systemsfx/01-selection-trimmed")
 local scrollSoundDown = playdate.sound.fileplayer.new("systemsfx/02-selection-reverse-trimmed")
 
+local keyTimer = nil
+
+local function removeKeyTimer()
+	if keyTimer ~= nil then
+		keyTimer:pause()
+		--keyTimer:stop()
+		keyTimer = nil
+	end
+end
+
 for _, group in ipairs(sys.getInstalledGameList()) do
 	for _, game in ipairs(group) do
 		if sys.game.getPath(game) then
@@ -193,7 +203,7 @@ function playdate.update()
 	end
 end
 
-function playdate.downButtonDown()
+local function moveDown()
 	if listview:getSelectedRow() < #games then
 		listview:setSelectedRow(listview:getSelectedRow() + 1)
 		listview:scrollCellToCenter(1, listview:getSelectedRow(), 1)
@@ -202,13 +212,31 @@ function playdate.downButtonDown()
 	end
 end
 
-function playdate.upButtonDown()
+local function moveUp()
 	if listview:getSelectedRow() > 1 then
 		listview:setSelectedRow(listview:getSelectedRow() - 1)
 		listview:scrollCellToCenter(1, listview:getSelectedRow(), 1)
 		scrollSoundUp:play()
 		renderRight()
 	end
+end
+
+function playdate.downButtonDown()
+	removeKeyTimer()
+	keyTimer = playdate.timer.keyRepeatTimerWithDelay(300, 40, moveDown)
+end
+
+function playdate.downButtonUp()
+	removeKeyTimer()
+end
+
+function playdate.upButtonDown()
+	removeKeyTimer()
+	keyTimer = playdate.timer.keyRepeatTimerWithDelay(300, 40, moveUp)
+end
+
+function playdate.upButtonUp()
+	removeKeyTimer()
 end
 
 function playdate.AButtonDown()

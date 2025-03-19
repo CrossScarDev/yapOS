@@ -2,5 +2,5 @@ name=yapOS
 author=CrossScar
 description=Yet Another Playful Operating System
 bundleID=com.panic.launcher
-version=0.4.0
+version=0.5.0
 imagepath=images

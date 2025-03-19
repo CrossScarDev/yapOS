@@ -13,7 +13,7 @@ Things I'm planning to add.
     - [ ] Custom selection of Apps and Games
   - [ ] Custom folder for custom dark mode icons
 - [x] Audio
-- [ ] Allow holding down buttons
+- [x] Allow holding down buttons
 
 ## Settings
 
