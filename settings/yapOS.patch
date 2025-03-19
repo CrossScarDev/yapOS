@@ -1,27 +1,20 @@
-Binary files original/images/SystemUpdate/update-charge.pdi and src/images/SystemUpdate/update-charge.pdi differ
-Binary files original/images/SystemUpdate/update-charging.pdi and src/images/SystemUpdate/update-charging.pdi differ
-Binary files original/images/SystemUpdate/update-checking.pdi and src/images/SystemUpdate/update-checking.pdi differ
-Binary files original/images/SystemUpdate/update-downloading.pdi and src/images/SystemUpdate/update-downloading.pdi differ
-Binary files original/images/SystemUpdate/update-unpacking.pdi and src/images/SystemUpdate/update-unpacking.pdi differ
 diff -ruN original/pdxinfo src/pdxinfo
---- original/pdxinfo	2025-03-16 11:33:05.976030514 -0700
-+++ src/pdxinfo	2025-03-16 13:16:21.626459519 -0700
-@@ -1,7 +1,7 @@
+--- original/pdxinfo	2025-03-18 17:47:36.352090427 -0700
++++ src/pdxinfo	2025-03-18 18:00:30.934044790 -0700
+@@ -1,6 +1,6 @@
 -name=Settings
 -author=Panic Inc.
 -description=Settings
-+name=yapOS Settings
++name=YapOS Settings
 +author=CrossScar
-+description=Patched version of PlaydateOS Settings.
++description=Patched Version of PlaydateOS Settings for YapOS
  bundleID=com.panic.settings
  imagePath=LauncherAssets/
-+version=0.2.1
- pdxversion=20601
--buildtime=785877031
+ pdxversion=20700
 diff -ruN original/settingsview.lua src/settingsview.lua
---- original/settingsview.lua	2025-03-16 11:33:05.976430333 -0700
-+++ src/settingsview.lua	2025-03-16 11:41:26.269407075 -0700
-@@ -10,6 +10,7 @@
+--- original/settingsview.lua	2025-03-18 17:47:36.353133903 -0700
++++ src/settingsview.lua	2025-03-18 17:59:22.388722239 -0700
+@@ -11,6 +11,7 @@
  import("timezone/timeview")
  import("system/systemview")
  import("wifi/wifiview")
@@ -29,7 +22,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  import("utility")
  SettingsView = {}
  local menu, controller
-@@ -50,6 +51,10 @@
+@@ -55,6 +56,10 @@
  	stopKeyRepeatTimer()
  	controller.pushView(LockscreenView, "Lock Screen", nil, kHeaderImageLockscreen)
  end
@@ -40,7 +33,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  local updateAutoLockRow
  local autoLockAction = function()
  	stopKeyRepeatTimer()
-@@ -78,6 +83,7 @@
+@@ -84,6 +89,7 @@
  kMenuTitleNotificationLight = "Notification Light"
  kMenuTitleAccessibility = "Accessibility"
  kMenuTitleSystem = "System"
@@ -48,7 +41,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  local chevronImage = chevronImage
  local menuTitles = {
  	kMenuTitleGames,
-@@ -88,18 +94,20 @@
+@@ -95,19 +101,21 @@
  	kMenuTitleNotificationLight,
  	kMenuTitleAccessibility,
  	kMenuTitleTime,
@@ -61,6 +54,8 @@ diff -ruN original/settingsview.lua src/settingsview.lua
 -	{chevronImage},
 -	{chevronImage},
 -	{chevronImage},
+-	{chevronImage},
++	{ chevronImage },
 +	{ chevronImage },
 +	{ chevronImage },
 +	{ chevronImage },
@@ -77,7 +72,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  }
  local menuActions = {
  	gamesAction,
-@@ -110,7 +118,8 @@
+@@ -119,7 +127,8 @@
  	notificationLightAction,
  	accessibilityAction,
  	timezoneAction,
@@ -87,15 +82,15 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  }
  local kMenuRowGames = 1
  local kMenuRowAccount = 2
-@@ -121,6 +130,7 @@
- local kMenuRowAccessibility = 7
- local kMenuRowTime = 8
- local kMenuRowSystem = 9
-+local kMenuRowYapOS = 10
+@@ -131,6 +140,7 @@
+ local kMenuRowAccessibility = 8
+ local kMenuRowTime = 9
+ local kMenuRowSystem = 10
++local kMenuRowYapOS = 11
  function SettingsView:initWithController(c)
  	controller = c
  	menu = Menu.new()
-@@ -149,11 +159,11 @@
+@@ -159,11 +169,11 @@
  		refreshDataOnce = true
  	end
  	if Registration.isRegistered() then
@@ -109,7 +104,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  			elseif false == cached then
  				if Registration.isRegistered() then
  					local info = Registration.getCachedAccountInfo()
-@@ -161,11 +171,11 @@
+@@ -171,11 +181,11 @@
  					if nil ~= info and nil ~= info.username then
  						name = info.username
  					end
@@ -123,7 +118,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  					})
  				end
  			end
-@@ -174,7 +184,7 @@
+@@ -184,7 +194,7 @@
  	else
  		menu:setSubtitleAtIndex(kMenuRowAccount, {
  			"Not Registered",
@@ -132,7 +127,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  		})
  	end
  end
-@@ -186,23 +196,23 @@
+@@ -196,23 +206,23 @@
  	if #ssids > 0 then
  		menu:setSubtitleAtIndex(kMenuRowWifi, {
  			ssids[1],
@@ -160,7 +155,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  	})
  	updateAutoLockRow()
  end
-@@ -226,7 +236,7 @@
+@@ -236,7 +246,7 @@
  		currentMinutes = date.minute
  		menu:setSubtitleAtIndex(kMenuRowTime, {
  			currentTimeString(),
@@ -169,7 +164,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  		})
  	end
  	if menu:needsDisplay() or x ~= lastX then
-@@ -240,8 +250,7 @@
+@@ -250,8 +260,7 @@
  function SettingsView.AButtonUp()
  	menu:actionButtonUp()
  end
@@ -179,7 +174,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  function SettingsView.BButtonUp()
  	playdate.exit()
  end
-@@ -263,14 +272,10 @@
+@@ -273,14 +282,10 @@
  function SettingsView.downButtonUp()
  	stopKeyRepeatTimer()
  end
@@ -199,7 +194,7 @@ diff -ruN original/settingsview.lua src/settingsview.lua
  	menu:selectPrev()
  end
 diff -ruN original/system/systemupdateview.lua src/system/systemupdateview.lua
---- original/system/systemupdateview.lua	2025-03-16 11:33:05.976030514 -0700
+--- original/system/systemupdateview.lua	2025-03-18 17:47:36.352090427 -0700
 +++ src/system/systemupdateview.lua	1969-12-31 16:00:00.000000000 -0800
 @@ -1,218 +0,0 @@
 -import("progressbar")
@@ -421,8 +416,8 @@ diff -ruN original/system/systemupdateview.lua src/system/systemupdateview.lua
 -function SystemUpdateView.crankClickDown()
 -end
 diff -ruN original/system/systemview.lua src/system/systemview.lua
---- original/system/systemview.lua	2025-03-16 11:33:05.976030514 -0700
-+++ src/system/systemview.lua	2025-03-16 11:42:58.493818287 -0700
+--- original/system/systemview.lua	2025-03-18 17:47:36.352090427 -0700
++++ src/system/systemview.lua	2025-03-18 17:47:51.412572901 -0700
 @@ -3,11 +3,9 @@
  import("system/deviceinfoview")
  import("system/factoryresetview")
@@ -482,7 +477,7 @@ diff -ruN original/system/systemview.lua src/system/systemview.lua
  	restartAction,
 diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 --- original/yapOS/mainview.lua	1969-12-31 16:00:00.000000000 -0800
-+++ src/yapOS/mainview.lua	2025-03-16 12:04:29.903697306 -0700
++++ src/yapOS/mainview.lua	2025-03-18 17:47:51.412973595 -0700
 @@ -0,0 +1,80 @@
 +import("menu")
 +import("alert")
@@ -566,7 +561,7 @@ diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 +end
 diff -ruN original/yapOS/themeview.lua src/yapOS/themeview.lua
 --- original/yapOS/themeview.lua	1969-12-31 16:00:00.000000000 -0800
-+++ src/yapOS/themeview.lua	2025-03-16 12:05:24.119705361 -0700
++++ src/yapOS/themeview.lua	2025-03-18 17:47:51.413133679 -0700
 @@ -0,0 +1,124 @@
 +import("menu")
 +import("alert")
