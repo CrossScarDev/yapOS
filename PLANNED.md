@@ -14,6 +14,7 @@ Things I'm planning to add.
   - [ ] Custom folder for custom dark mode icons
 - [x] Audio
 - [x] Allow holding down buttons
+- [ ] Unwrapping
 
 ## Settings
 
