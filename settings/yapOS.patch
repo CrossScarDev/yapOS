@@ -477,12 +477,11 @@ diff -ruN original/system/systemview.lua src/system/systemview.lua
  	restartAction,
 diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 --- original/yapOS/mainview.lua	1969-12-31 16:00:00.000000000 -0800
-+++ src/yapOS/mainview.lua	2025-03-18 17:47:51.412973595 -0700
-@@ -0,0 +1,80 @@
++++ src/yapOS/mainview.lua	2025-03-18 20:21:59.810257107 -0700
+@@ -0,0 +1,104 @@
 +import("menu")
-+import("alert")
 +import("images/sharedImages")
-+import("yapOS/themeview")
++local sys = playdate.system
 +YapOSView = {}
 +local menu, controller, keyRepeatTimer
 +local stopKeyRepeatTimer = function()
@@ -494,23 +493,46 @@ diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 +function YapOSView:deviceWillLock()
 +	stopKeyRepeatTimer()
 +end
-+function ThemeAction()
-+	stopKeyRepeatTimer()
-+	controller.pushView(ThemeView, "Theme", nil, kHeaderImageDevice)
++local themeAction = function()
++	local settings = playdate.datastore.read("/System/Data/yapOS")
++	settings.dark = not settings.dark
++	playdate.datastore.write(settings, "/System/Data/yapOS")
++
++	menu:setSubtitleAtIndex(1, {
++		settings.dark and "dark" or "light",
++	})
++end
++local invertAction = function()
++	local settings = playdate.datastore.read("/System/Data/yapOS")
++	settings.invert = not settings.invert
++	playdate.datastore.write(settings, "/System/Data/yapOS")
++
++	menu:setSubtitleAtIndex(2, {
++		settings.invert and "yes" or "no",
++	})
++end
++local rebuildMenu = function()
++	menu:removeAllItems()
++
++	local settings = playdate.datastore.read("/System/Data/yapOS")
++
++	local menuTitles = { "Theme", "Invert Icons" }
++	local menuSubTitles = {
++		{
++			settings.dark and "dark" or "light",
++		},
++		{
++			settings.invert and "yes" or "no",
++		},
++	}
++	local menuActions = { themeAction, invertAction }
++	menu:setMenuTitlesAndActions(menuTitles, menuSubTitles, menuActions)
++	menu:setSelectedRow(1)
 +end
 +function YapOSView:initWithController(c)
 +	menu = Menu.new()
 +	controller = c
-+	local menuTitles = {
-+		"Theme",
-+	}
-+	local menuSubTitles = {
-+		{ chevronImage },
-+	}
-+	local menuActions = {
-+		ThemeAction,
-+	}
-+	menu:setMenuTitlesAndActions(menuTitles, menuSubTitles, menuActions)
++	rebuildMenu()
 +end
 +function YapOSView:viewWillAppear() end
 +function YapOSView:deinit()
@@ -520,6 +542,8 @@ diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 +end
 +function YapOSView:draw(x, y, w, h)
 +	menu:drawmenu(x, y, w, h)
++	local dottedW, _ = dottedLine:getSize()
++	dottedLine:draw(200 - dottedW / 2, 250)
 +end
 +function YapOSView.AButtonDown()
 +	menu:actionButtonDown()
@@ -557,133 +581,5 @@ diff -ruN original/yapOS/mainview.lua src/yapOS/mainview.lua
 +	menu:selectPrev()
 +end
 +function YapOSView.crankClickDown()
-+	menu:selectNext()
-+end
-diff -ruN original/yapOS/themeview.lua src/yapOS/themeview.lua
---- original/yapOS/themeview.lua	1969-12-31 16:00:00.000000000 -0800
-+++ src/yapOS/themeview.lua	2025-03-18 17:47:51.413133679 -0700
-@@ -0,0 +1,124 @@
-+import("menu")
-+import("alert")
-+import("images/sharedImages")
-+ThemeView = {}
-+local menu, controller, keyRepeatTimer
-+local stopKeyRepeatTimer = function()
-+	if nil ~= keyRepeatTimer then
-+		keyRepeatTimer:remove()
-+		keyRepeatTimer = nil
-+	end
-+end
-+function ThemeView:deviceWillLock()
-+	stopKeyRepeatTimer()
-+end
-+local boolToDisplay = function(dark)
-+	if dark then
-+		return "Dark"
-+	else
-+		return "Light"
-+	end
-+end
-+local boolToRowNumber = function(dark)
-+	if dark then
-+		return 1
-+	else
-+		return 2
-+	end
-+end
-+function ThemeView.currentTheme()
-+	return boolToDisplay(playdate.datastore.read("/System/Data/yapOS").dark)
-+end
-+local setTheme = function(newTheme)
-+	local newSelection = boolToRowNumber(newTheme)
-+	local currentTheme = playdate.datastore.read("/System/Data/yapOS").dark
-+	local currentSelection = boolToRowNumber(currentTheme)
-+	if currentSelection ~= newSelection then
-+		menu:setSubtitleAtIndex(currentSelection, nil)
-+		menu:setSubtitleAtIndex(newSelection, checkImage)
-+		playdate.datastore.write({ ["dark"] = newTheme }, "/System/Data/yapOS")
-+		currentSelection = newSelection
-+	end
-+end
-+local DarkAction = function()
-+	setTheme(true)
-+end
-+local LightAction = function()
-+	setTheme(false)
-+end
-+function ThemeView:initWithController(c)
-+	menu = Menu.new()
-+	controller = c
-+	local kMenuTitleDark = boolToDisplay(true)
-+	local kMenuTitleLight = boolToDisplay(false)
-+	local menuTitles = {
-+		kMenuTitleDark,
-+		kMenuTitleLight,
-+	}
-+	local menuSubTitles = {
-+		{},
-+		{},
-+	}
-+	local menuActions = {
-+		DarkAction,
-+		LightAction,
-+	}
-+	menu:setMenuTitlesAndActions(menuTitles, menuSubTitles, menuActions)
-+end
-+function ThemeView:viewWillAppear()
-+	local theme = playdate.datastore.read("/System/Data/yapOS").dark
-+	local selectedRow = boolToRowNumber(theme)
-+	for i = 1, menu:getNumberOfRows() do
-+		if i == selectedRow then
-+			menu:setSubtitleAtIndex(i, checkImage)
-+		else
-+			menu:setSubtitleAtIndex(i, nil)
-+		end
-+	end
-+end
-+function ThemeView:deinit()
-+	stopKeyRepeatTimer()
-+	menu = nil
-+	controller = nil
-+end
-+function ThemeView:draw(x, y, w, h)
-+	menu:drawmenu(x, y, w, h)
-+end
-+function ThemeView.AButtonDown()
-+	menu:actionButtonDown()
-+end
-+function ThemeView.AButtonUp()
-+	menu:actionButtonUp()
-+end
-+function ThemeView.BButtonDown() end
-+function ThemeView.BButtonUp()
-+	controller.popView()
-+end
-+function ThemeView.upButtonDown()
-+	stopKeyRepeatTimer()
-+	keyRepeatTimer = playdate.timer.keyRepeatTimerWithDelay(300, 100, function()
-+		menu:selectPrev()
-+	end)
-+end
-+function ThemeView.upButtonUp()
-+	stopKeyRepeatTimer()
-+end
-+function ThemeView.downButtonDown()
-+	stopKeyRepeatTimer()
-+	keyRepeatTimer = playdate.timer.keyRepeatTimerWithDelay(300, 100, function()
-+		menu:selectNext()
-+	end)
-+end
-+function ThemeView.downButtonUp()
-+	stopKeyRepeatTimer()
-+end
-+function ThemeView.leftButtonDown() end
-+function ThemeView.leftButtonUp() end
-+function ThemeView.rightButtonDown() end
-+function ThemeView.rightButtonUp() end
-+function ThemeView.crankClickUp()
-+	menu:selectPrev()
-+end
-+function ThemeView.crankClickDown()
 +	menu:selectNext()
 +end

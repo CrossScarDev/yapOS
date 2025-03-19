@@ -9,6 +9,10 @@ Things I'm planning to add.
 - [ ] Add option to customize scrolling speed
 - [ ] Press `B` or `Right` to see info in fullscreen
 - [ ] Custom dark mode icons
+  - [ ] Allow Inverting Icons
+    - [x] All Icons at once
+    - [ ] Custom selection of Apps and Games
+  - [ ] Custom folder for custom dark mode icons
 
 ## Settings
 

@@ -38,13 +38,19 @@ gfx.setFont(fontBold, gfx.font.kVariantBold)
 
 local settings = playdate.datastore.read("/System/Data/yapOS")
 local darkMode = false
+local invertIcons = false
 
 if settings == nil or settings.dark == nil then
-	playdate.datastore.write({ ["dark"] = darkMode }, "/System/Data/yapOS")
+	playdate.datastore.write({ ["dark"] = darkMode, ["invert"] = invertIcons }, "/System/Data/yapOS")
 end
 
-if settings ~= nil and settings.dark ~= nil then
-	darkMode = settings.dark
+if settings ~= nil then
+	if settings.dark ~= nil then
+		darkMode = settings.dark
+	end
+	if settings.invert ~= nil then
+		invertIcons = settings.invert
+	end
 end
 
 local listview = ui.gridview.new(playdate.display.getWidth() / 2 - 7.5, font:getHeight() + 20)
@@ -53,7 +59,7 @@ listview:setNumberOfColumns(1)
 listview:setCellPadding(0, 0, 2.5, 2.5)
 listview:setContentInset(5, 0, 5, 0)
 listview:setSelectedRow(1)
-function listview:drawCell(section, row, column, selected, x, y, width, height)
+function listview:drawCell(_, row, _, selected, x, y, width, height)
 	gfx.setImageDrawMode(darkMode and gfx.kDrawModeFillWhite or gfx.kDrawModeFillBlack)
 	if selected then
 		gfx.setColor(darkMode and gfx.kColorWhite or gfx.kColorBlack)
@@ -105,7 +111,9 @@ local function renderRight()
 		)
 		gfx.setColor(gfx.kColorWhite)
 		gfx.fillRect(sideOffset, 5, 64, 64)
+		gfx.setImageDrawMode(invertIcons and gfx.kDrawModeInverted or gfx.kDrawModeCopy)
 		icon:drawScaled(sideOffset, 5, 2)
+		gfx.setImageDrawMode(gfx.kDrawModeCopy)
 
 		gfx.setImageDrawMode(darkMode and gfx.kDrawModeFillWhite or gfx.kDrawModeFillBlack)
 		local w, h = gfx.getTextSizeForMaxWidth(selectedGame.name, playdate.display.getWidth() - sideOffset - 79)
@@ -202,10 +210,15 @@ function playdate.AButtonDown()
 	sys.switchToGame(games[listview:getSelectedRow()]["path"])
 end
 
-menu:addCheckmarkMenuItem("Dark Mode", darkMode, function(v)
+menu:addCheckmarkMenuItem("dark mode", darkMode, function(v)
 	darkMode = v
 	playdate.datastore.write({ ["dark"] = darkMode }, "/System/Data/yapOS")
 	renderLeft()
+	renderRight()
+end)
+menu:addCheckmarkMenuItem("invert icons", invertIcons, function(v)
+	invertIcons = v
+	playdate.datastore.write({ ["invert"] = invertIcons }, "/System/Data/yapOS")
 	renderRight()
 end)
 
